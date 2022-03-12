@@ -1,0 +1,18 @@
+form input {
+    width: 200px;
+}
+form span {
+    width: 100px;
+    display: inline-block;
+}
+td, th {
+    padding: 5px;
+}
+select {
+    width: 64%;
+    margin-left: 33%;
+}
+#create {
+    float: right;
+    background-color: darkorange;
+}

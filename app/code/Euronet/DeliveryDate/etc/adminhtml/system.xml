@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Euronet
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Euronet.com license that is
+ *
+ * @category    Euronet
+ * @package     Euronet_DeliveryDate
+ * @copyright   Copyright (c) Euronet (https://www.euronetworldwide.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="euronet" translate="label" sortOrder="1">
+            <label>Euronet Delivery Date</label>
+        </tab>
+        <section id="delivery_date" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>Product Delivery Date</label>
+            <tab>euronet</tab>
+            <resource>Euronet_DeliveryDate::core_config</resource>
+            <group id="product_delivery" translate="general" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Enable delivery dates on product view</label>
+                <field id="delivery_bool" translate="label" type="select" showInDefault="1" canRestore="1" sortOrder="100">
+                    <label>Enable/Disable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[If enabled delivery time picker will be shown on product page.]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

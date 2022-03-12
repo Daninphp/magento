@@ -1,0 +1,144 @@
+<?php
+/**
+ * Slider view template
+ *
+ * @var $block \Codiac\Search\Block\Slider
+ */
+?>
+<div id="landing-four">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-sm-4">
+                <div class="first-four">
+                    <h2 class="elementor-image-box-title">Abfallcontainer &amp; Mulden</h2>
+                    <p class="image-box-description">Als Entsorgungsdienstleister bieten wir sowohl für Privat-Kunden
+                        als
+                        auch für Gewerbebetreibende, Abfallverwertung und Recycling von Wertstoffen an.</p>
+                    <div class="image-element-h">
+                        <div class="icon-animation">
+                            <a href="#" class="" role="button">
+                                <span class="">Abfallarten</span>
+                            </a>
+                        </div>
+                        <div class="icon-animation">
+                            <a href="#" role="button">
+                                <span class="">Muldenarten</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-8">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-6 elements-icon">
+                        <div class="elements-icon-inner">
+                            <div class="icon-box-icon">
+                                <a class="" href="#">
+                                    <i aria-hidden="true" class="fa fa-question-circle"></i>
+                                </a>
+                            </div>
+                            <div class="icon-box-content">
+                                <div>
+                                    <h3 class="icon-box-title">
+                                        <a href="#">Individuelle <br> Lösungen</a>
+                                    </h3>
+                                    <p class="icon-box-description">Für spezielle Anliegen.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-6 elements-icon">
+                        <div class="elements-icon-inner">
+                            <div class="icon-box-icon">
+                                <a class="" href="#">
+                                    <i aria-hidden="true" class="fa fa-leaf"></i>
+                                </a>
+                            </div>
+                            <div class="icon-box-content">
+                                <div>
+                                    <h3 class="icon-box-title">
+                                        <a href="#">Nachhaltig <br> seit 2001</a>
+                                    </h3>
+                                    <p class="icon-box-description">Umweltschonende Entsorgung.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-6 elements-icon">
+                        <div class="elements-icon-inner">
+                            <div class="icon-box-icon">
+                                <a class="" href="#">
+                                    <i aria-hidden="true" class="fa fa-truck fa-flip-horizontal"></i>
+                                </a>
+                            </div>
+                            <div class="icon-box-content">
+                                <div>
+                                    <h3 class="icon-box-title">
+                                        <a href="#">Exklusiver <br> Live-Support</a>
+                                    </h3>
+                                    <p class="icon-box-description">Liefertermine sofort ersichtlich.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-6 elements-icon">
+                        <div class="elements-icon-inner"
+                             style="--translateX: 12.6px;transform: translateX(var(--translateX));">
+                            <div class="icon-box-icon">
+                                <a class="" href="#">
+                                    <i aria-hidden="true" class="fa fa-commenting-o"></i>
+                                </a>
+                            </div>
+                            <div class="icon-box-content">
+                                <div>
+                                    <h3 class="icon-box-title">
+                                        <a href="#">Individuelle <br> Lösungen</a>
+                                    </h3>
+                                    <p class="icon-box-description">Hilfe, Rund um die Uhr.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    require(['jquery', 'jquery/ui'], function ($) {
+        (function() {
+            if ($(window).width() > 480) {
+                height = [];
+                for (i=1; i<3; i++) {
+                    height.push(document.querySelector("#landing-four > div > div > div:nth-of-type("+i+")").offsetHeight)
+                }
+                max = Math.max.apply(null, height);
+                for (i=1; i<3; i++) {
+                    document.querySelector("#landing-four > div > div > div:nth-of-type("+i+")").style.height = max + 'px';
+                }
+            }
+        })();
+
+        // var $window = $(window),
+        //     $sectionFour = $('.section-four'),
+        //     $circle = $sectionFour.find('.circle');
+        // rect = $sectionFour[0].getBoundingClientRect();
+        //
+        // function revealCircle() {
+        //     var scrollTop = $window.scrollTop();
+        //     var windowHeight = $window[0].innerHeight;
+        //
+        //     if (scrollTop + windowHeight > rect.top) {
+        //         var percentVisible = (scrollTop - (rect.top - windowHeight)) / rect.height;
+        //         var position = 200 - (percentVisible * 200);
+        //
+        //         $circle.css('transform', 'translateX(-' + position + 'px');
+        //     }
+        // }
+        //
+        // $window.on('scroll', revealCircle);
+    })
+</script>

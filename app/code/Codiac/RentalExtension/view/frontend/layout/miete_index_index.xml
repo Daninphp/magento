@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Mietverlängerung</title>
+    </head>
+    <body>
+        <referenceContainer name="sidebar.main">
+			<block class="Codiac\RentalExtension\Block\Renting" name="customer_account_navigation" template="Codiac_RentalExtension::my-account.phtml">
+			</block>
+        </referenceContainer>		a
+		<referenceContainer name="content">
+            <block class="Codiac\RentalExtension\Block\Renting" name="renting-block" template="Codiac_RentalExtension::renting.phtml">
+            </block>
+        </referenceContainer>
+    </body>
+</page>

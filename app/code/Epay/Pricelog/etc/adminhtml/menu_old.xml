@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <menu>
+        <add id="Epay_Pricelog::pricelog" title="Price Changes Log" parent="Magento_Reports::report" module="Epay_Pricelog" resource="Epay_Pricelog::pricelog" translate="title" sortOrder="900"/>
+        <add id="Epay_Pricelog::pricelog_grid" title="Price Log Grid" parent="Epay_Pricelog::pricelog" module="Epay_Pricelog" resource="Epay_Pricelog::pricelog" translate="title" sortOrder="900" action="pricelog"/>
+    </menu>
+</config>

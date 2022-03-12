@@ -1,0 +1,340 @@
+#calendar-wrapper {
+    width: 100%;
+    display: grid;
+    grid-template-rows: 2.5em 1fr;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+    font-size: inherit;
+}
+
+#calendar-wrapper header {
+    grid-row: 1/2;
+    font-size: 2em;
+    box-sizing: inherit;
+}
+
+#calendar-wrapper header h4 {
+    padding: 0;
+    margin: 0;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: 1fr 4em;
+    grid-template-rows: 3em 1fr;
+    box-sizing: inherit;
+    padding: 0;
+    margin: 0;
+}
+
+#calendar #calendar-days,
+#calendar #calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    align-items: center;
+    padding: 0 1em;
+    box-sizing: inherit;
+    margin: 0;
+}
+
+#calendar #calendar-days {
+    justify-items: center;
+    grid-row: 1/2;
+    grid-column: 1/2;
+}
+
+#calendar #calendar-grid {
+    grid-template-rows: repeat(6, 1fr);
+    justify-items: flex-start;
+    grid-row: 2/-1;
+    grid-column: 1/2;
+    width: 100%;
+}
+
+#calendar #calendar-grid > time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0.4em;
+    padding: 1em 0.2em;
+    width: 90%;
+    background-color: rgba(108, 108, 108, 0.02);
+    border-radius: 3px;
+    border: 2px solid transparent;
+    transition: box-shadow 200ms, border 100ms;
+    box-shadow: 1px 1px rgba(0, 0, 0, 0);
+    box-sizing: inherit;
+}
+
+#calendar #calendar-grid time.selected,
+#calendar #calendar-grid time.selected:focus {
+    outline: none;
+    border: 2px solid #c64949;
+    box-sizing: inherit;
+}
+
+#calendar #calendar-grid time.disabled,
+#calendar #calendar-grid time.disabled:focus {
+    outline: none;
+    border: 2px solid transparent;
+    box-sizing: inherit;
+    cursor: not-allowed;
+    background-color: rgba(30, 39, 51, 0.2);
+    box-shadow: 1px 1px rgba(0, 0, 0, 0);
+
+}
+
+#calendar #calendar-grid > *:hover {
+    border: 2px solid rgba(72, 72, 72, 0.5);
+    box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
+    box-sizing: inherit;
+}
+
+#calendar #navigation-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    grid-row: 2/-1;
+    grid-column: 2/-1;
+    box-sizing: inherit;
+    padding: 1em 0 3.5em;
+    margin: 0;
+}
+
+#calendar #navigation-wrapper button {
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    font-size: 3em;
+    width: 1.6em;    
+    box-sizing: inherit;
+    padding: 0.1em;
+    margin: 0;
+}
+
+#calendar #navigation-wrapper button:hover {
+    opacity: 0.75;
+}
+
+
+#calendar #navigation-wrapper button svg {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 1.6em;
+    display: block;
+    box-sizing: inherit;
+}
+
+#calendar #navigation-wrapper button:first-of-type {
+    transform: rotate(180deg);
+}
+
+
+/*Start Admin side Calendar page */
+
+#myCalendarWrapper {
+    width: 80em;
+    border: 1px dashed black;
+    padding: 2em 4em;
+    position: relative;
+    font-size: 1rem;
+    margin: 2rem 0 5rem;
+}
+
+#myCalendarWrapper:before {
+    position: absolute;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 2.4rem);
+    font-size: 1.2rem;
+    background-color: rgba(93, 93, 93, 0.2);
+    padding: 0.5rem 1rem 0.4rem;
+    color: rgb(233, 72, 99);
+}
+
+.col-sm-8, .col-sm-4 {
+    display: inline-block;
+    float: left;
+    width: 65%;
+}
+
+.col-sm-4 {
+    width: 35%;
+}
+
+#calendar-exclusion:after {
+    display: table;
+    content: '';
+    clear: both;
+}
+
+#exclusion-dates {
+    display: none;
+    text-align: center;
+}
+
+#exclusion-dates h3 {
+    display: inline-block;
+}
+#exclusion-dates h3, #exclusion-dates h3 p, #exclusion-dates button {
+    display: inline-block;
+}
+
+#exclusion-dates h3 p {
+    min-width: 120px;
+}
+
+.excluded-date {
+    font-size: 20px;
+    margin: 10px 0;
+    display: inline-block;
+    width: 33%;
+}
+
+.excluded-date button:hover {
+    background-color: lightgrey;
+    font-weight: bold;
+}
+
+.excluded-date button {
+    margin-left: 10px;
+}
+
+#loader-gif, #error-reporting {
+    position: relative;
+}
+
+.loader-gif, .error-reporting {
+    width: 350px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%)
+}
+
+#error-reporting .error-reporting {
+    width: 420px;
+    background-color: #fafafa;
+    border: 1px solid;
+    padding: 10px;
+}
+
+.loader-gif img, .error-reporting {
+    width: 100%;
+}
+
+#select-date-message {
+    text-align: center;
+}
+#cancel-all-shipping {
+    border-bottom: 2px solid lightgray;
+    padding-bottom: 25px;
+}
+
+#cancel-shipping {
+    padding: 5px;
+    width: 70px;;
+    margin-right: 10px;
+}
+
+#cancel-all-shipping {
+    margin: 20px 0;
+}
+
+#return-message {
+    margin-left: 20px;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+#shipping-disabled {
+    padding: 7px;
+    background-color: #fff200;
+    border: 1px dashed;
+}
+
+#shipping-disable, #shipping-hour-container {
+    width: 46%;
+    display: inline-block;
+}
+
+#shipping-disable {
+    border-right: 1px solid lightgrey;
+}
+
+#shipping-hour-container {
+    margin-left: 5%;
+}
+
+#shipping-hour-container label {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+#udpated-hour-message {
+    display: inline-block;
+    margin-left: 20px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+#shipping-hour {
+    margin-right: 10px;
+    height: 32px;
+    width: 100px;
+    text-align: center;
+    font-weight: bold;
+}
+#price-request {
+    float: left;
+}
+
+#price-answer {
+    float: right;
+}
+
+#sumbit_discount {
+    margin: 20px;
+    width: 250px;
+    display: block;
+}
+#table-response {
+    text-align: center;
+}
+.preis {
+    margin-bottom: 10px;
+}
+.preis label {
+    width: 60px;
+    display: inline-block;
+}
+.preis input {
+    width: 235px;
+}
+/*End Admin side Calendar page */
+
+#index_native {
+    margin: 20px 0;
+}
+
+#index_native div {
+    margin-bottom: 20px;
+}
+
+#index_native select {
+    width: fit-content;
+}
+
+.color_page {
+    background-color: #fff200;
+
+}

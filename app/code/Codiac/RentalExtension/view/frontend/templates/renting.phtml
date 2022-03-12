@@ -1,0 +1,420 @@
+<?php
+
+/** @var $block \Codiac\RentalExtension\Block\Rental */
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$orders = $this->getActiveOrders();
+$customerSession = $objectManager->get('Magento\Customer\Model\Session');
+$customerEmail = $this->getCustomerEmail();
+if($customerSession->isLoggedIn()) { ?>
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .control {
+        position: relative;
+        height: 40px;
+        text-align: left;
+        display: inline-block;
+    }
+
+    .delivery-times {
+        width: 100%;
+    }
+
+    .loaderGif {
+        width: 50px;
+        height: 50px;
+        margin-left: 40%;
+    }
+
+    .control span.edit-qty {
+        display: block;
+        text-align: center;
+        font-size: 22px;
+        color: #222;
+        font-weight: 400;
+        line-height: 1;
+        position: absolute;
+        top: 2px;
+        left: 16px;
+        cursor: pointer;
+        padding-top: 7px;
+    }
+
+    .control .input-text.qty, .bundle-info .product-details .box-tocart .field.qty > .control .input-text.qty {
+        width: 115px;
+        border: 0;
+        height: 40px;
+        background: none;
+        padding: 0;
+        font-weight: 400;
+        font-size: 16px;
+        color: #222;
+        text-align: center;
+    }
+
+    .control span.edit-qty.plus {
+        font-size: 18px;
+        left: auto;
+        right: 16px;
+        padding-top: 9px;
+    }
+
+    .control span.edit-qty {
+        display: block;
+        text-align: center;
+        font-size: 22px;
+        color: #222;
+        font-weight: 400;
+        line-height: 1;
+        position: absolute;
+        top: 2px;
+        left: 16px;
+        cursor: pointer;
+        padding-top: 7px;
+    }
+
+    #orderId {
+        color: #000;
+    }
+
+</style>
+<div id="miete-landing">
+    <div class="row">
+        <div class="col-lg-12 col-sm-12 col-sm-12 col-xs-12">
+			 <p class="miete-text"><?php echo __('Nach Auswahl einer noch laufenden Bestellung können Sie den Mietzeitraum verlängern.') ?></p>
+            <label class=miete" for="orderId"><?php echo __('Bestellnummer'); ?></label>
+            <select name="orderId" id="orderId">
+                <option selected disabled><?php echo __('Bestellung wählen') ?></option>
+                <?php foreach ($orders as $orderId) { ?>
+                    <option value="<?php echo $orderId ?>"><?php echo $orderId ?></option>
+                <?php } ?>
+            </select>
+            <div id="retrieved-order"></div>
+            <div class="extend-order" id="div-extend-order" style="display: none;">
+                <button id="extend-orders"><?php echo __('Verlängern') ?></button>
+            </div>
+        </div>
+    </div>
+    <div id="loader-gif">
+        <div class="loader-gif" id="loader-gif-sub" style="display: none">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: none; display: block; shape-rendering: auto;" width="80px" height="80px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+                <circle cx="50" cy="50" fill="none" stroke="#fff200" stroke-width="10" r="40" stroke-dasharray="188.49555921538757 64.83185307179586">
+                    <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.8s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
+                </circle>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    require([
+        "jquery",
+        "Magento_Customer/js/customer-data",
+    ], function ($, customerData) {
+
+        jQuery( document ).ready(function() {
+            var gifLoader = jQuery('.loader-gif');
+            var baseGlobalUrl = '<?php echo $this->getBaseUrl() ?>';
+            var baseUrl = baseGlobalUrl + 'miete/';
+            var url = baseUrl + 'getorder/index';
+
+            var getUrlParameter = function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return typeof sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+                return false;
+            };
+
+            var getParamOrderId = getUrlParameter('orderId');
+            var getParamEmail = getUrlParameter('email');
+            if (getParamEmail && getParamOrderId) {
+                jQuery('#orderId').val(getParamOrderId);
+                jQuery('#orderemail').val(getParamEmail);
+                getOrderDetails(getParamOrderId, getParamEmail);
+            }
+
+            jQuery('#element').datepicker();
+            function getOrderDetails(orderId = null, orderEmail = null) {
+                gifLoader.show();
+
+                if (orderId == null && orderEmail == null) {
+                    var orderId = jQuery('#orderId').val();
+                    var orderEmail = '<?php echo $customerEmail ?>';
+                }
+
+                var isOrderIdOnlyNumbers = /^\d+$/.test(orderId);
+                var orderEmailValid = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/.test(orderEmail);
+
+                if (orderId.length == 9 && isOrderIdOnlyNumbers && orderEmailValid) {
+                    jQuery.ajax({
+                        url: url,
+                        method: 'post',
+                        data: {'orderId': orderId, 'orderEmail': orderEmail },
+                    }).done(function (response) {
+                        gifLoader.hide();
+                        var response = JSON.parse(response);
+
+                        if (response['error']) {
+                            jQuery('#retrieved-order').html('<h4 style="color: #9f191f;">' + response['error'] + '</h4>');
+                            $('#div-extend-order').hide();
+                        }
+                        else {
+                            jQuery('#retrieved-order').html(response['success']);
+                            $('#div-extend-order').show();
+                        }
+                    });
+                }
+                else {
+                    jQuery('#retrieved-order').html('<h4 style="color: #9f191f;">Ungültige Daten</h4>');
+                    gifLoader.hide();
+                    $('#div-extend-order').hide();
+                }
+            }
+
+            jQuery('#orderId').on('change', function () {
+                    getOrderDetails();
+            });
+
+            var urlNew = baseUrl + 'parseorder/index';
+            var urlErrorCart = baseUrl + 'emptycart/index';
+
+
+            var urlCart = baseGlobalUrl + 'checkout/#shipping';
+
+            jQuery('#extend-orders').on('click', function () {
+                let returnValue = false;
+                var ajaxCounter = 0;
+                var result = true;
+                var productIds = [];
+
+                gifLoader.show();
+
+                // Loop through products and get data
+                var jsonProducts = [{}];
+                var formKey = '<?php echo $this->getFormKey() ?>';
+
+                var djuture = 0;
+                var i = 0;
+                $('.looping-products').each(function() {
+                    if(!jQuery(this).children('.rent-date').children().val() || !jQuery(this).children('.rent-time').children().val()) {
+                        return;
+                    }
+                    returnValue = true;
+                    var isValid = true;
+                    var productId = this.id;
+                    var rentalFrom = jQuery('#' + productId).attr('data-order-timestamp-from');
+                    var rentalFromFormated = new Date(rentalFrom * 1000);
+                    var rentalFromProductDate = jQuery('#rentto-' + productId).attr('data-date');
+                    var qty = parseInt(jQuery('#' + productId).attr('data-order-qty'));
+                    var rentalDate = jQuery('#rentto-' + productId).val();
+                    var rentalToDate = rentalDate.replace(/[.]+/g, "/") + ' 23:59';
+
+                    if (rentalToDate) {
+                        var rentalToDateSplit = rentalToDate.split(' ');
+                        var rentalToDateCorrectFormat = rentalToDateSplit[0].split('/');
+                        var rentToTimeStampOriginal = Date.parse(rentalToDateCorrectFormat[2] + '/' + rentalToDateCorrectFormat[1] + '/' + rentalToDateCorrectFormat[0] + ' ' + rentalToDateSplit[1]);
+                        var rentToTimeStamp = Date.parse(rentalToDateCorrectFormat[2] + '/' + rentalToDateCorrectFormat[1] + '/' + rentalToDateCorrectFormat[0] + ' ' + rentalToDateSplit[1]) / 1000;
+
+                        var rentToFormated = new Date(rentToTimeStampOriginal);
+                        var hours = parseInt(Math.abs(rentToFormated - rentalFromFormated) / 36e5) + 1;
+                    } else {
+                        isValid = false;
+                    }
+
+                    if (/^\d+$/.test(qty) === false) {
+                        isValid = false;
+                    }
+                    else {
+                        if (parseInt(qty) < 1) {
+                            isValid = false;
+                        }
+                    }
+
+                    if (isValid) {
+                        djuture += qty;
+                        var originalPrice = parseFloat(jQuery('#' + productId).attr('data-price')).toFixed(2);
+                        var stringPrice = jQuery('#base-price-' + productId).html();
+                        var price = parseFloat(stringPrice.replace(',','.'));
+
+                        var optionId = jQuery('#' + productId).attr('data-option-id');
+                        var optionIdValueWithoutPrice = jQuery('#' + productId).attr('data-option-id-value');
+                        var deliveryTime = jQuery('#delivery-time-back-' + productId).val();
+                        var rentalPrice = price;
+                        var categoryId = jQuery('#' + productId).attr('data-category-id');
+                        var selectedCategory = jQuery('#' + productId).attr('data-selected-category');
+                        var privater = jQuery('#' + productId).attr('data-privater');
+                        var anwesend = jQuery('#' + productId).attr('data-anwesend');
+                        var clientaddress = jQuery('#' + productId).attr('data-clientaddress');
+                        var clientaddressoptional = jQuery('#' + productId).attr('data-clientaddressoptional');
+                        var clientmessage = jQuery('#' + productId).attr('data-clientmessage');
+
+                        var jsonArray = {
+                            'product_id': productId,
+                            'selected_configurable_option': '',
+                            'related_product': '',
+                            'item': productId,
+                            'form_key': formKey,
+                            'additional_options': {
+                                'rental_price': rentalPrice,
+                                'rental_from': rentalFrom,
+                                'rental_to': rentToTimeStamp,
+                                'rental_start': rentalFrom,
+                                // 'rental_hours': parseInt(hours + 1),
+                                'rental_hours': hours,//bug when in loop it adds 1 hour
+                                'has_time': 1,
+                                'shipping_price': 0,
+                                'verlangen': productId + '-' + rentalPrice + '-' + '<?php echo strtotime(date('d.m.Y. H:i')); ?>'
+                            },
+                            'qty': qty,
+                            'rentfrom': rentalFromProductDate,
+                            'rentto': rentalToDate,
+                            'orderEmail': jQuery('#order-email').val(),
+                            'previous_order': jQuery('#orderId').val(),
+                            'deliverytime': '00:00 - 00:00',
+                            'returntime': deliveryTime,
+                            'original_price': originalPrice,
+                            'category_id': categoryId,
+                            'selected_category': selectedCategory,
+                            'privater': privater,
+                            'anwesend': anwesend,
+                            'clientaddress': clientaddress,
+                            'clientaddressoptional': clientaddressoptional,
+                            'clientmessage': ""
+                        };
+
+                        if (optionId != 'x') {
+                            var options = [];
+                            options[optionId] = rentalPrice + '_' + optionIdValueWithoutPrice;
+                            jsonArray.additional_options.options = options;
+                        }
+
+                        jQuery.ajax({
+                            url: urlNew,
+                            method: 'post',
+                            data: jsonArray,
+                        }).done(function (response) {
+                            if (response !== 'success') {
+                                result = false;
+                            }
+
+                            productIds.push(productId);
+                            ajaxCounter++;
+                            // if ($('.looping-products').length == ajaxCounter){
+                            if (ajaxCounter > 0){
+                                var sections = ['cart'];
+                                customerData.reload(sections, true).done(function () {
+                                        if (result) {
+                                            console.log(result);
+                                            // redirect to cart
+                                            window.location.replace(urlCart);
+                                        } else {
+                                            // remove from cart and show message error
+                                            jQuery.ajax({
+                                                url: urlErrorCart,
+                                                method: 'post',
+                                                data: productIds,
+                                            }).done(function (response) {
+                                                console.log(response);
+                                                gifLoader.hide();
+                                            });
+                                        }
+                                    }
+                                );
+                            }
+                        }).always(function (response) {
+                            console.log(response);
+                            gifLoader.hide();
+                        });
+                        jsonProducts[i] = jsonArray;
+                        i++;
+
+                    }
+                });
+
+                if (!returnValue) {
+                    gifLoader.hide();
+                    jQuery("#div-extend-order").append('<p id="data-warning-miet">Bitte wählen Sie Datum und Uhrzeit.</p>');
+                    jQuery("#extend-orders").prop('disabled', true);
+                    setTimeout(function(){
+                        jQuery("#data-warning-miet").remove();
+                        jQuery("#extend-orders").prop('disabled', false);
+                    }, 2000);
+
+                    return;
+                }
+            });
+
+        });
+    });
+
+    function plusProductQty(qtyInput){
+        require([
+            'jquery'
+        ], function(jQuery){
+            (function($) {
+                if($('#'+qtyInput).attr('disabled')!='disabled'){
+                    var productId = qtyInput.substring(4, qtyInput.length);
+                    qty = $('#'+qtyInput).attr('value');
+                    qty = parseInt(qty);
+
+                    var previousOrderQty = parseInt($('#' + productId).attr('data-stock-qty'));
+                    var currentStockQty = parseInt($('#' + productId).attr('data-order-qty'));
+                    var maxLimit = previousOrderQty + currentStockQty;
+
+                    if (qty < maxLimit) {
+                        qty++;
+                        $('#'+qtyInput).val(qty);
+                        $('#error-qty-' + productId).html('');
+                    } else {
+                        $('#error-qty-' + productId).html('Es sind nicht so viele Container/Mulden auf Lager!');
+                    }
+                }
+            })(jQuery);
+        });
+
+    }
+
+    function minusProductQty(qtyInput){
+        require([
+            'jquery'
+        ], function(jQuery){
+            (function($) {
+                if($('#'+qtyInput).attr('disabled')!='disabled'){
+                    var productId = qtyInput.substring(4, qtyInput.length);
+                    qty = $('#'+qtyInput).attr('value');
+                    qty = parseInt(qty);
+
+                    if(qty > 0){
+                        $('#error-qty-' + productId).html('');
+                        qty--;
+                        $('#'+qtyInput).val(qty);
+                    }
+                }
+            })(jQuery);
+        });
+    }
+
+</script>
+<?php
+} else {
+?>
+    <div style="text-align: center;" class="login-first">
+        <a href="<?php echo $this->getBaseUrl() . 'customer/account/login'; ?>" class="action edit  btn btn-sm btn-default" style="margin: 30px 0;">Bitte loggen Sie sich ein, um diese Funktion verwenden zu können.</a>
+    </div>
+
+<?php
+}
+?>

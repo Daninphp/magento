@@ -1,0 +1,515 @@
+<?php
+/** @var $this \Codiac\Search\Block\Adminhtml\Notification */
+date_default_timezone_set("Europe/Berlin");
+setlocale(LC_TIME, 'de_DE', 'deu_deu');
+$adminUri = $this->helper('Magento\Backend\Helper\Data')->getAreaFrontName();
+$productCollection = $this->getProductCollection();
+$notificationDays = $this->getNotificationDays();
+$dayOfTheWeek = date("N");
+$today = utf8_encode(strftime('%A'));
+$deliveryHours = $this->getDeliveryHours();
+?>
+
+<style>
+
+    #notification-query {
+        padding: 20px 0 0 20px;
+        width: 40%
+    }
+
+    #notification-query, #notification-list {
+        float: left;
+    }
+
+    #body-notification:after, #notification-list:after {
+        display: table;
+        content: '';
+        clear: both;
+    }
+
+    #products-list {
+        padding: 5px;
+        width: 500px;
+        font-size: 19px;
+    }
+
+    #notification-comment-area {
+        font-size: 19px;
+        width: 500px;
+        padding: 5px;
+    }
+
+    #notification-comment-area:focus {
+        box-shadow: 0 6px 16px -6px rgb(24 52 75 / 56%);
+    }
+
+    #products, #notification-days {
+        margin-bottom: 30px;
+    }
+
+    #notification-days h2 {
+        max-width: 475px;
+    }
+
+    #notification-days-select {
+        border: none;
+        width: 500px;
+        height: 235px;
+    }
+
+    #notification-days-select option {
+        margin: 0 10px 10px 0;
+        font-size: 19px;
+        padding: 8px;
+        border: 1px solid;
+    }
+
+    .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    .tg td {
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        overflow: hidden;
+        padding: 10px 5px;
+        word-break: normal;
+    }
+
+    .tg th {
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        overflow: hidden;
+        padding: 10px 5px;
+        word-break: normal;
+    }
+
+    .tg .tg-amwm {
+        font-weight: bold;
+        text-align: center;
+        vertical-align: top
+    }
+
+    .tg .tg-0lax {
+        text-align: center;
+        vertical-align: top
+    }
+
+    #table-response tr:nth-child(even) {
+        background-color: #f5f5f5;
+    }
+
+    #table-response tr:hover {
+        background-color: #e5f7fe;
+    }
+
+    #table-response {
+        border: 1px solid #d6d6d6;
+    }
+
+    #table-info thead tr {
+        background-color: #5f564f;
+        color: white;
+    }
+
+    #table-response .excluded-date {
+        border-left: 1px solid;
+        border-right: 1px solid;
+    }
+
+    #table-response td {
+        border-bottom: none;
+        border-left: 0.1rem dashed #d6d6d6;
+        border-right: 0.1rem dashed #d6d6d6;
+        border-top: 0.1rem dashed #d6d6d6;
+        color: #303030;
+        padding: 1rem 1rem;
+    }
+
+    #submit-notification {
+        margin: 20px 0;
+        background-color: #5f564f;
+        color: white;
+    }
+
+    #submit-notification:hover {
+        color: #d6d6d6
+    }
+
+    #table-info h2 {
+        text-align: center;
+        font-size: 25px;
+        font-weight: bold;
+    }
+
+    #loader-gif, #error-reporting {
+        position: relative;
+    }
+
+    .loader-gif, .error-reporting {
+        width: 350px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        /* bring your own prefixes */
+        transform: translate(-50%, -50%)
+    }
+
+    #error-reporting .error-reporting {
+        width: 420px;
+        background-color: #fafafa;
+        border: 1px solid;
+        padding: 10px;
+    }
+
+    .loader-gif img, .error-reporting {
+        width: 100%;
+    }
+
+    .delete-notification {
+        width: 50%;
+    }
+
+    .delete-notification:hover {
+        background-color: #5f564f;
+        color: white;
+        font-weight: bold;
+    }
+
+    #total-delivery-times {
+        display: none;
+        overflow: auto !important;
+        width: 150px;
+        text-align: center;
+    }
+
+    #delivery-times select {
+        width: 25%;
+    }
+
+    #delivery-times #total-delivery-times {
+        width: 51%;
+    }
+
+    #total-delivery-times option {
+        cursor: pointer;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    #total-delivery-times option:hover {
+        display: block;
+        color: red;
+    }
+
+    #index_native {
+        margin: 20px 0;
+    }
+
+    #index_native div {
+        margin-bottom: 20px;
+    }
+
+    #index_native select {
+        width: fit-content;
+        margin-right: 20px;
+    }
+
+    .color_page {
+        background-color: #fff200;
+
+    }
+</style>
+<div id="body-notification">
+    <div id="notification-query">
+        <?php
+        if (count($productCollection)) { ?>
+            <div id="products">
+                <h2><?php echo __('Ausgewähltes Produkt: ') ?></h2>
+                <select name="products" id="products-list">
+                    <option value="0" disabled><?php echo __('Bitte auswählen') ?></option>
+                    <?php foreach ($productCollection as $product) { ?>
+                        <option value="<?php echo $product->getId() ?>"><?php echo $product->getName() ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+
+            <div id="notification-days">
+                <h2><?php echo __('Tag auswählen: ') ?></h2>
+                <select name="notification-days" id="notification-days-select" size="7">
+                    <?php foreach ($notificationDays as $key => $day) { ?>
+                        <option value="<?php echo $key ?>"><?php echo __($day) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+
+<!--            <div id="notification-comment">-->
+<!--                <h2>--><?php //echo __('Dein Kommentar: ') ?><!--</h2>-->
+<!--                <textarea id="notification-comment-area" name="notification-comment-area" rows="4"></textarea>-->
+<!--            </div>-->
+            <div id="delivery-times" style="font-size: 22px">
+                <h2><?php echo __('Bitte Versandzeitintervalle auswählen') ?></h2>
+                <select id="delivery-times-from" >
+                    <?php foreach ($deliveryHours as $deliveryHour) { ?>
+                        <option value="<?php echo $deliveryHour ?>"><?php echo $deliveryHour ?></option>
+                   <?php } ?>
+                </select>
+                <select id="delivery-times-to">
+                    <?php foreach ($deliveryHours as $deliveryHour) { ?>
+                        <option value="<?php echo $deliveryHour ?>"><?php echo $deliveryHour ?></option>
+                    <?php } ?>
+                </select>
+                <button id="add-delivery-times"><?php echo __('Zeitintervall hinzufügen') ?></button>
+                <select name="total-delivery-times" id="total-delivery-times">
+
+                </select>
+            </div>
+
+            <button id="submit-notification"><?php echo __('Daten einfügen') ?></button>
+
+        <?php } ?>
+    </div>
+
+    <div id="notification-list">
+        <div id="table-info" style="display: none">
+            <h2><?php echo __("Bestehende Benachrichtigungen:") ?></h2>
+            <table class="tg" style="undefined;table-layout: fixed; width: 799px">
+                <colgroup>
+                    <col style="width: 261px">
+                    <col style="width: 240px">
+                    <col>
+                    <col>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th class="tg-amwm"><?php echo __('Produkt') ?></th>
+                    <th class="tg-amwm"><?php echo __('Tag') ?></th>
+                    <th class="tg-amwm"><?php echo __('Lieferzeiten') ?></th>
+                    <th class="tg-amwm"><?php echo __('Löschen') ?></th>
+                </tr>
+                </thead>
+                <tbody id="table-response">
+
+                </tbody>
+            </table>
+        </div>
+        <div id="index_native">
+        </div>
+    </div>
+</div>
+<div id="error-reporting" style="display: none">
+    <div class="error-reporting"></div>
+</div>
+<div id="loader-gif">
+    <div class="loader-gif" style="display: none">
+        <img src="<?php echo $block->getBaseUrl() . 'pub/media/loader.gif' ?>" alt="loader">
+    </div>
+</div>
+<script src="<?php echo $this->getViewFileUrl('Codiac_Search::js/paginator.js')?>"></script>
+<script>
+    require(['jquery', 'jquery/ui'], function ($) {
+        var baseAdminUrl = '<?php echo $this->getBaseUrl() . $adminUri ?>';
+        var gifLoader = jQuery('.loader-gif');
+        let uniqueValues = [];
+
+        jQuery('#add-delivery-times').on('click', function () {
+            var fromTime = jQuery('#delivery-times-from').val();
+            var toTime = jQuery('#delivery-times-to').val();
+            var timeValue = fromTime + ' - ' + toTime;
+            var n = uniqueValues.includes(timeValue);
+
+            //check if this time combination is already set
+            if (!n) {
+                uniqueValues.push(timeValue);
+                jQuery('#total-delivery-times').attr('size', uniqueValues.length == 1 ? 2 : uniqueValues.length);
+                jQuery('#total-delivery-times').append('<option title="Klicken Sie zum Entfernen" value="' + timeValue + '">' + timeValue + '&nbsp;&nbsp; X</option>');
+
+                jQuery('#total-delivery-times option').on('click', function () {
+
+                    for (i = 0; i <= uniqueValues.length; i++) {
+                        if(uniqueValues[i] == jQuery(this).val()) {
+                            uniqueValues.splice(i, 1);
+                        }
+                    }
+                    jQuery(this).remove();
+                    jQuery('#total-delivery-times').attr('size', uniqueValues.length == 1 ? 2 : uniqueValues.length);
+                });
+            } else {
+                alert('Bitte wählen Sie eindeutige Werte!');
+            }
+            jQuery('#total-delivery-times').css('display','block');
+        });
+
+
+            jQuery('#submit-notification').on('click', function () {
+             if(jQuery('#products-list').val() === null) {
+                alert('Bitte Behälter auswählen!');
+                return;
+            } else if(jQuery("#notification-days-select option:selected").length === 0) {
+                alert('Bitte Tag auswählen!');
+                return;
+            } else if(jQuery("#total-delivery-times option").length === 0) {
+                 alert('Bitte Versandzeiten hinzufügen!');
+                 return;
+             }
+
+            jQuery('#submit-notification').prop("disabled", true); // Element(s) are now disabled.
+            gifLoader.show();
+            var url = baseAdminUrl + '/codiac/notification/add';
+            var url = url.replace("#", "");
+            var days = '';
+            jQuery("#notification-days-select option:selected").each(function () {
+                days += jQuery(this).text() + ',';
+            });
+
+            days = days.slice(0, -1);
+            let shippingHours = [];
+
+            jQuery("#total-delivery-times option").each(function() {
+                shippingHours.push(jQuery(this).val());
+            });
+
+            var data = {
+                'product_id': jQuery('#products-list').val(),
+                'product_name': jQuery('#products-list option:selected').text(),
+                'days_id': jQuery('#notification-days-select').val(),
+                'days_name': days,
+                'shipping_hours': shippingHours,
+            };
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {data},
+                dataType: 'json',
+            }).done(function (answer) {
+                jQuery('#products-list option:eq(0)').prop('selected', true);
+                jQuery("#notification-days-select option:selected").each(function () {
+                    jQuery(this).prop('selected', false);
+                });
+                jQuery('#notification-comment-area').val('');
+                jQuery('#total-delivery-times').find('option').remove();
+                uniqueValues = [];
+
+                jQuery('.error-reporting').empty();
+                jQuery('#error-reporting').hide();
+                if (answer.message) {
+                    gifLoader.hide();
+                    jQuery('#error-reporting').show();
+                    jQuery('.error-reporting').append('<h4>' + answer.message + '</h4>');
+                    if (answer.status === 'success') {
+                        setTimeout(function () {
+                            jQuery('#error-reporting').hide();
+                            jQuery('.error-reporting').empty();
+                        }, 1500);
+                        getNotificationList('none');
+                    } else {
+                        setTimeout(function () {
+                            jQuery('#error-reporting').hide();
+                            jQuery('.error-reporting').empty();
+                        }, 1500);
+                    }
+                };
+                jQuery('#submit-notification').prop("disabled", false); // Element(s) are now enabled.
+            })
+        });
+
+        function getNotificationList(loaderState) {
+            gifLoader.css('display', loaderState);
+            var url = baseAdminUrl + '/codiac/notification/read';
+            var url = url.replace("#", "");
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {},
+                dataType: 'json',
+            }).done(function (answer) {
+                gifLoader.hide();
+                if (typeof answer == "object") {
+                    jQuery('#table-response').empty();
+                    answer.forEach(function (single, index, arr) {
+                        var shippinghours = single.shipping_hours;
+                        var shippinghoursArray = shippinghours.split(';');
+                        var shippingHoursString = '';
+
+                        var currentElement = single.product_name;
+                        var previusElement = ((0 === index)? "" : arr[index-1].product_name);
+                        let style = '';
+                        currentElement != previusElement ? style = 'style="border-top: 2px solid"' : '';
+
+                        shippinghoursArray.forEach(function(val) {
+                            shippingHoursString += val + "<br>";
+                        });
+
+                        jQuery('#table-response').append('' +
+                            '<tr class="excluded-date"' + style + '>' +
+                                '<td class="tg-0lax">' + single.product_name + '</td>' +
+                                '<td class="tg-0lax">' + single.days_name + '</td>' +
+                                '<td class="tg-0lax">' + shippingHoursString + '</td>' +
+                                '<td class="tg-0lax"><button class="delete-notification" title="Löschen" type="button" data-day="' + single.days_id + '" data-product-id="' + single.product_id + '">x</button></td>' +
+                            '</tr>')
+                    });
+
+                    paginator({
+                        rows_per_page: 5,
+                        table: document.getElementById("table-info").getElementsByTagName("table")[0],
+                        box: document.getElementById("index_native"),
+                        active_class: "color_page",
+                    });
+
+                    jQuery('#table-info').show();
+                    jQuery('.delete-notification').on('click', function () {
+                        jQuery('.delete-notification').prop("disabled", true); // Element(s) are now disabled.
+                        if (confirm("Sind Sie sicher, dass Sie dies löschen möchten?")) {
+                            gifLoader.css('display', 'block');
+                            var url = baseAdminUrl + '/codiac/notification/delete';
+                            var url = url.replace("#", "");
+                            var productId = jQuery(this).attr('data-product-id');
+                            var dayId = jQuery(this).attr('data-day');
+                            jQuery.ajax({
+                                url: url,
+                                method: 'post',
+                                data: {'data-product-id': productId, 'data-day': dayId},
+                                dataType: 'json',
+                            }).done(function (answer) {
+                                gifLoader.hide();
+                                jQuery('#error-reporting').show();
+                                jQuery('.error-reporting').append('<h4>' + answer.message + '</h4>');
+                                if (answer.status === 'success') {
+                                    setTimeout(function () {
+                                        jQuery('#error-reporting').hide();
+                                        jQuery('.error-reporting').empty();
+                                        getNotificationList('none');
+                                    }, 1500);
+                                } else {
+                                    setTimeout(function () {
+                                        jQuery('#error-reporting').hide();
+                                        jQuery('.error-reporting').empty();
+                                    }, 1500);
+                                }
+                                jQuery('.delete-notification').prop("disabled", false); // Element(s) are now enabled.
+                                getNotificationList();
+                            })
+                        } else {
+                            event.preventDefault();
+                        }
+                    });
+                }
+            });
+        }
+
+        jQuery(document).ready(function () {
+            getNotificationList('block');
+        });
+
+    });
+</script>

@@ -1,0 +1,68 @@
+<?php
+/** @var $block \Euronet\DeliveryDate\Block\Dates */
+
+$isDeliveryEnabled = $block->getDeliveryAvailability();
+?>
+<style>
+    #delivery-date {
+        width: 300px;
+    }
+
+    .delivery-date-label {
+        display: block;
+    }
+
+    #delivery-dates {
+        margin-bottom: 20px;
+    }
+</style>
+<?php if ($isDeliveryEnabled) { ?>
+    <div id="delivery-dates">
+        <label class="delivery-date-label" for="delivery-date"><?php echo __('Delivery Date:') ?></label>
+        <input name="deliverydate" id="delivery-date" class="required" type="text">
+        <div class="error-message"></div>
+    </div>
+
+    <script>
+        require([
+            "jquery",
+            'Magento_Ui/js/form/element/date'
+        ], function(jQuery){
+            var deliveryMessage = '<?php echo __("Please select shipping date!") ?>';
+            var addToCart = jQuery("#product-addtocart-button");
+            var errorDiv = jQuery('.error-message');
+
+            (function($) {
+                jQuery("#delivery-date").datepicker({
+                    inline:true,
+                    dateFormat: "dd-mm-yy",
+                })
+            })(jQuery);
+
+            function isValidDate(date)
+            {
+                var matches = /^(\d{1,2})[-](\d{1,2})[-](\d{4})$/.exec(date);
+                if (matches == null) return false;
+                var m = matches[2];
+                var d = matches[1] - 1;
+                var y = matches[3];
+                var composedDate = new Date(y, m, d);
+                return composedDate.getDate() == d &&
+                    composedDate.getMonth() == m &&
+                    composedDate.getFullYear() == y;
+            }
+
+            addToCart.on('click', function (event) {
+                var shippingDate = jQuery('#delivery-date').val();
+                if (!shippingDate) {
+                    event.preventDefault();
+                    errorDiv.html('<div style="color: red;">' + deliveryMessage + '</div>');
+                } else if (isValidDate(shippingDate) === false) {
+                    event.preventDefault();
+                    errorDiv.html('<div style="color: red;">' + 'Please select proper format \'D-M-Y\'!' + '</div>');
+                }
+            });
+        });
+    </script>
+<?php } ?>
+

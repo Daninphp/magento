@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Euronet
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Euronet.com license that is
+ *
+ * @category    Euronet
+ * @package     Euronet_DeliveryDate
+ * @copyright   Copyright (c) Euronet (https://www.euronetworldwide.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="checkout_onepage_controller_success_action">
+        <observer name="create_delivery_date" instance="Euronet\DeliveryDate\Observer\Order\CreateOrder"/>
+    </event>
+</config>

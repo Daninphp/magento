@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Euronet
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Euronet.com license that is
+ *
+ * @category    Euronet
+ * @package     Euronet_DeliveryDate
+ * @copyright   Copyright (c) Euronet (https://www.euronetworldwide.com)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Euronet_DeliveryDate" setup_version="1.0.1">
+        <sequence>
+            <module name="Magento_Catalog"/>
+        </sequence>
+    </module>
+</config>

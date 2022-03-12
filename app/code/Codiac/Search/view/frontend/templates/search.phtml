@@ -1,0 +1,490 @@
+<?php
+
+/** @var $block \Codiac\Search\Block\Search */
+$availableTags = $block->getAttributeValues();
+?>
+<style type="text/css">
+    @-webkit-keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+        40% {
+            -webkit-transform: translateY(-40px);
+            transform: translateY(-40px);
+        }
+        60% {
+            -webkit-transform: translateY(-20px);
+            transform: translateY(-20px);
+        }
+    }
+    @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+        40% {
+            -webkit-transform: translateY(-40px);
+            transform: translateY(-40px);
+        }
+        60% {
+            -webkit-transform: translateY(-20px);
+            transform: translateY(-20px);
+        }
+    }
+
+    #location-denied {
+        color: #9f191f;
+        padding-left: 25px;
+    }
+
+    /*
+    Animate the stripes
+    */
+    @-webkit-keyframes move{
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 50px 50px;
+        }
+    }
+    @-moz-keyframes move{
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 50px 50px;
+        }
+    }
+    @-ms-keyframes move{
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 50px 50px;
+        }
+    }
+    @keyframes move{
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 50px 50px;
+        }
+    }
+</style>
+
+<div class="search-container" id="search-container-base">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 search-container-min">
+                <div id="search-alle">
+                    <input name="search-location" type="text" id="search-location" placeholder="Gib z.B. 1010 oder Wien ein"/>
+                    <button id="find-my-location" onclick="getGeoLocation();"><i style="font-weight: bold;margin-left: 5px;" class="fa fa-map-marker" aria-hidden="true"></i></button>
+                    <button id="find-search-location"><span><?php echo __('Bestätigen') ?></span></button>
+                </div>
+            </div>
+            <div id="search-location-error"></div>
+            <div id="location-denied"></div>
+            <div id="autosuggest-div" class="col-sm-12"></div>
+        </div>
+    </div>
+</div>
+<div id="loader-gif">
+    <div class="loader-gif" id="loader-gif-sub" style="display: none">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: none; display: block; shape-rendering: auto;" width="80px" height="80px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+            <circle cx="50" cy="50" fill="none" stroke="#fff200" stroke-width="10" r="40" stroke-dasharray="188.49555921538757 64.83185307179586">
+                <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="0.8s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
+            </circle>
+        </svg>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div id="search-results">
+        </div>
+    </div>
+</div>
+
+<script src="<?php echo $block->getViewFileUrl('Codiac_Search::js/geoPosition.js')?>"></script>
+<script>
+    require(['jquery', 'jquery/ui'], function ($) {
+        jQuery( document ).ready(function() {
+            window.baseUrl = '<?php echo $this->getBaseUrl() ?>';
+            window.shippingHour = '<?php echo explode(':', $this->getShippingHours())[0] ?>';
+            var availableTags = <?php echo json_encode($availableTags) ?>;
+            var minLength = 2;
+
+            var getUrlParameter = function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return typeof sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+                return false;
+            };
+
+            function getContainers(wasteId) {
+                var url = window.baseUrl + 'search/search/container';
+                jQuery.ajax({
+                    url: url,
+                    method: 'post',
+                    data: {'categoryId': wasteId},
+                }).done(function (answerContainer) {
+                    var existingElementAnswer = jQuery("#container-types-answer");
+                    var i = setInterval(function () {
+                        if (typeof (existingElementAnswer) != 'undefined' && existingElementAnswer != null) {
+                            jQuery("#container-types-answer").html(answerContainer)
+                            clearInterval(i);
+                        }
+                    }, 200);
+                })
+            }
+
+            var postCode = getUrlParameter('postCode');
+            var wasteId = getUrlParameter('wasteId');
+
+            if (postCode && wasteId) {
+                jQuery('#search-location').val(postCode);
+                search(postCode, wasteId)
+            } else if (postCode) {
+                jQuery('#search-location').val(postCode).trigger("change");
+                search(postCode,'',);
+            }
+
+
+            jQuery('#find-my-location2').on('click', function () {
+                var firstSearch = jQuery('#search-location-start').val();
+                jQuery('#search-location').val(firstSearch).trigger("change");
+                search(firstSearch, '');
+                jQuery('html,body').animate({
+                        scrollTop: jQuery("#search-container-base").offset().top - jQuery(".middle-header-content").height()},
+                    'slow');
+            });
+
+            // jQuery('.hash span, #slider-5-slide-9-layer-17').on('click', function () {
+            jQuery('.hash span').on('click', function () {
+                jQuery('html,body').animate({
+                        scrollTop: jQuery("#search-container-base").offset().top - jQuery(".middle-header-content").height()},
+                    'slow');
+            });
+
+            jQuery('#find-search-location').on('click', function () {
+                search(jQuery('#search-location').val());
+            });
+
+            jQuery('#search-location').on('click', function () {
+                jQuery(this).val('');
+                jQuery(this).attr('placeholder', 'Gib z.B. 1010 oder Wien ein');
+            });
+
+            jQuery("#search-location").autocomplete({
+                source: availableTags,
+                appendTo: jQuery("#autosuggest-div"),
+                minLength: minLength,
+                select: function (event, ui) {
+                    jQuery('.ui-autocomplete').height(-1);
+                    var index = availableTags.indexOf(ui.item.value);
+                    search(ui.item.value);
+                }
+            }).on("keyup change keydown", function(e) {
+                if (jQuery(window).width > 767) {
+                    if (jQuery( "#search-location" ).val().length < minLength) {
+                        jQuery(".ui-helper-hidden-accessible").hide();
+                    } else {
+                        jQuery(".ui-helper-hidden-accessible").show();
+                    }
+                } else {
+                    jQuery(".ui-helper-hidden-accessible").hide();
+                }
+
+            });
+
+            jQuery("#search-location-start").autocomplete({
+                source: availableTags,
+                appendTo: jQuery("#autosuggest-div2"),
+                minLength: minLength,
+                select: function (event, ui) {
+                    jQuery('.ui-autocomplete').height(-1);
+                    var index = availableTags.indexOf(ui.item.value);
+                    search(ui.item.value);
+                }
+            }).on("keyup change keydown", function(e) {
+                if (jQuery(window).width > 767) {
+                    jQuery("#ui-id-2").css('width','500px');
+                    if (jQuery( "#search-location-start" ).val().length < minLength) {
+                        jQuery(".ui-helper-hidden-accessible").hide();
+                    } else {
+                        jQuery(".ui-helper-hidden-accessible").show();
+                    }
+                } else {
+                    jQuery(".ui-helper-hidden-accessible").hide();
+                }
+
+            });
+
+            function search(searchString, categoryId = null) {
+                jQuery('.post-code-not-found').remove();
+                jQuery('.search-container ').css('height','40px');
+
+                jQuery('#search-results').empty();
+                var baseUrl = window.baseUrl;
+                var url = baseUrl + 'search/search/index'; // 'www' to be removed when the server is changed
+                var url = url.replace("#", "");
+                var lowerCaseAvailableTags = availableTags.map(v => v.toLowerCase());
+                let basePostCode = false;
+                lowerCaseAvailableTags.forEach(function(element) {
+                    if (element.includes((searchString.trim()).toLowerCase())) {
+                        basePostCode = true;
+                        return;
+                    }
+                });
+
+                if (isNaN(parseInt(searchString.substring(0,4)))) {
+                    jQuery('#search-location-error').html('<p class="post-code-not-found">Bitte geben Sie 4 Ziffern für die PLZ ein!</p>');
+                } else  if (searchString.length > 2 &&  basePostCode) {
+                    jQuery('#search-location-error').empty();
+                    jQuery('#search-results').empty();
+                    jQuery('.loader-gif').css('display','block');
+                    jQuery.ajax({
+                        url: url,
+                        method: 'post',
+                        data: {'searchString': searchString},
+                    }).done(function (answer) {
+                        jQuery('.loader-gif').css('display', 'none');
+                        jQuery('#search-results').html(answer);
+                        jQuery('#search-results').show();
+                        if (categoryId) {
+                            jQuery('html,body').animate({
+                                    scrollTop: jQuery("#container-types-answer").offset().top - jQuery(".middle-header-content").height()},
+                                'slow');
+                            getContainers(categoryId);
+                        } else {
+                            jQuery('html,body').animate({
+                                    scrollTop: jQuery("#search-results").offset().top - jQuery(".middle-header-content").height()},
+                                'slow');
+                        }
+                    }).always(function () {
+                        jQuery('.loader-gif').css('display', 'none');
+                    })
+                } else {
+                    jQuery('#search-results').empty();
+                    jQuery('#search-location-error').html('<p class="post-code-not-found">Postleitzahl nicht gefunden. Bitte erneut versuchen!</p>');
+                }
+            }
+
+            jQuery("#search-location").keypress(function(event) {
+                if (event.keyCode === 13) {
+                    search(jQuery('#search-location').val());
+                }
+            });
+
+            function getGoogleGeoLocation() {
+                jQuery.ajax({
+                    url: 'https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyClV0k_IjpHU-nqVzoVxbC0fuQ5YBwpnV4',
+                    method: 'post',
+                    // data: {"considerIp": false},
+                    // data: {"radioType": "lte",},
+                    data: {},
+                }).done(function (answer) {
+                    jQuery.ajax({
+                        url: '<?php echo $this->getBaseUrl() . 'search/search/locator'; ?>',
+                        method: 'post',
+                        data: {
+                            latitude: answer.location.lat,
+                            longitude: answer.location.lng
+                        }
+                    }).done(function (result) {
+                        jQuery('#search-location').val(result);
+                    }).fail(function (xhr) {
+                        console.log(xhr.message);
+                    });
+                })
+            }
+
+            // getGoogleGeoLocation();
+
+            // if (window.navigator.userAgent.indexOf("Mac") != -1) {
+            //     console.log(window.navigator.userAgent);
+            // } else {
+            //     console.log('Not iOS device')
+            // }
+        });
+
+
+    });
+
+    // document.addEventListener('DOMContentLoaded', function(event) {
+    var Ajax = {
+        request: function (ops) {
+            if (typeof ops == 'string') ops = {url: ops};
+            ops.url = ops.url || '';
+            ops.method = ops.method || 'get';
+            ops.data = ops.data || {};
+            var getParams = function (data, url) {
+                var arr = [], str;
+                for (var name in data) {
+                    arr.push(name + '=' + encodeURIComponent(data[name]));
+                }
+                str = arr.join('&');
+                if (str != '') {
+                    return url ? (url.indexOf('?') < 0 ? '?' + str : '&' + str) : str;
+                }
+                return '';
+            };
+            var api = {
+                host: {},
+                process: function (ops) {
+                    var self = this;
+                    this.xhr = null;
+                    if (window.ActiveXObject) {
+                        this.xhr = new ActiveXObject('Microsoft.XMLHTTP');
+                    } else if (window.XMLHttpRequest) {
+                        this.xhr = new XMLHttpRequest();
+                    }
+                    if (this.xhr) {
+                        this.xhr.onreadystatechange = function () {
+                            if (self.xhr.readyState == 4 && self.xhr.status == 200) {
+                                var result = self.xhr.responseText;
+                                if (ops.json === true && typeof JSON != 'undefined') {
+                                    result = JSON.parse(result);
+                                }
+                                self.doneCallback && self.doneCallback.apply(self.host, [result, self.xhr]);
+                            } else if (self.xhr.readyState == 4) {
+                                self.failCallback && self.failCallback.apply(self.host, [self.xhr]);
+                            }
+                            self.alwaysCallback && self.alwaysCallback.apply(self.host, [self.xhr]);
+                        }
+                    }
+                    if (ops.method == 'get') {
+                        this.xhr.open("GET", ops.url + getParams(ops.data, ops.url), true);
+                    } else {
+                        this.xhr.open(ops.method, ops.url, true);
+                        this.setHeaders({
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-type': 'application/x-www-form-urlencoded'
+                        });
+                    }
+                    if (ops.headers && typeof ops.headers == 'object') {
+                        this.setHeaders(ops.headers);
+                    }
+                    setTimeout(function () {
+                        ops.method == 'get' ? self.xhr.send() : self.xhr.send(getParams(ops.data));
+                    }, 20);
+                    return this;
+                },
+                done: function (callback) {
+                    this.doneCallback = callback;
+                    return this;
+                },
+                fail: function (callback) {
+                    this.failCallback = callback;
+                    return this;
+                },
+                always: function (callback) {
+                    this.alwaysCallback = callback;
+                    return this;
+                },
+                setHeaders: function (headers) {
+                    for (var name in headers) {
+                        this.xhr && this.xhr.setRequestHeader(name, headers[name]);
+                    }
+                }
+            };
+            return api.process(ops);
+        }
+    };
+
+    function success_callback(p) {
+        var latitude = parseFloat(p.coords.latitude).toFixed(4);
+        var longitude = parseFloat(p.coords.longitude).toFixed(4);
+        if (latitude.length > 5 && longitude.length > 5) {
+            Ajax.request({
+                url: '<?php echo $this->getBaseUrl() . 'search/search/locator'; ?>',
+                method: 'post',
+                data: {
+                    latitude: latitude,
+                    longitude: longitude
+                },
+                headers: {
+                    'custom-header': 'custom-value'
+                }
+            }).done(function (result) {
+                if (result != "") {
+                    document.getElementById('loader-gif-sub').style.display = 'none';
+                    document.getElementById('search-location').value = result;
+                    document.getElementById('search-location-start').value = result;
+                } else {
+                    document.getElementById('loader-gif-sub').style.display = 'none';
+                    document.getElementById('search-location').value = "";
+                    document.getElementById('search-location-start').value = "";
+                    document.getElementById('search-location').setAttribute('placeholder', 'Kein Ergebnis - Gib z.B. 1010 oder Wien ein');
+                    document.getElementById('search-location-start').setAttribute('placeholder', 'Kein Ergebnis - Gib z.B. 1010 oder Wien ein');
+                }
+                document.getElementById('loader-gif-sub').style.display = 'none';
+            }).fail(function (xhr) {
+                console.log(xhr.message);
+                document.getElementById('loader-gif-sub').style.display = 'none';
+            });
+
+        }
+    }
+
+    function error_callback(p) {
+        console.log(p.message);
+        document.getElementById('loader-gif-sub').style.display = 'none';
+    }
+
+    const options = {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 27000
+    };
+
+    if (geoPosition.init() && window.location.search.substring().length < 5) {
+        geoPosition.getCurrentPosition(success_callback, error_callback, options);
+    } else {
+        console.log("error");
+        document.getElementById('loader-gif-sub').style.display = 'none';
+    }
+
+    function getGeoLocation() {
+        document.getElementById('loader-gif-sub').style.display = 'block';
+        var existingElement = document.getElementById('find-my-location');
+        if (typeof (existingElement) != 'undefined' && existingElement != null) {
+            //document.getElementById("find-my-location").addEventListener("click", function () {
+            navigator.permissions.query({name: 'geolocation'}).then(function (result) {
+                if (result.state == 'granted') {
+                    if (geoPosition.init()) {
+                        geoPosition.getCurrentPosition(success_callback, error_callback, options);
+                    } else {
+                        document.getElementById('loader-gif-sub').style.display = 'none';
+                        console.log("error");
+                    }
+                } else {
+                    document.getElementById('location-denied').innerHTML = '<p style="text-align: center;margin-top: 50px;display: block">Bitte erlauben Sie den Standortzugriff.</p>';
+                    document.getElementById('loader-gif-sub').style.display = 'none';
+                }
+            });
+            // });
+        }
+    }
+    // })
+
+</script>

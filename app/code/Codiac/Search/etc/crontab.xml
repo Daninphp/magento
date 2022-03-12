@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="index">
+        <job instance="Codiac\Search\Model\Cron" method="sendEmails" name="order_email_cron">
+            <schedule>5 7 * * *</schedule>
+<!--            <schedule>* * * * *</schedule>-->
+        </job>
+        <job instance="Codiac\Search\Model\Cron" method="updatePostalCodes" name="postal_codes_sync_cron">
+            <schedule>5 10 * * *</schedule>
+        </job>
+    </group>
+</config>

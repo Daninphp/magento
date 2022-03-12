@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Magexo_Pos::mastering" title="Mastering" translate="title" module="Magexo_Pos" sortOrder="30" dependsOnModule="Magexo_Pos" resource="Magexo_Pos::grid" action="pointofsale/index"/>
+        <add id="Magexo_Pos::grid" title="POS" translate="title" module="Magexo_Pos" parent="Magento_Backend::content" sortOrder="50" dependsOnModule="Magexo_Pos" resource="Magexo_Pos::grid"/>
+        <add id="Magexo_Pos::grid_location" title="Point of sale" translate="title" module="Magexo_Pos" parent="Magexo_Pos::grid" sortOrder="10" dependsOnModule="Magexo_Pos" action="pointofsale/pos" resource="Magexo_Pos::grid"/>
+    </menu>
+</config>

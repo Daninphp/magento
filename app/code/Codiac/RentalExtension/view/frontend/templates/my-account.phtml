@@ -1,0 +1,17 @@
+<div class="block account-nav">
+    <div class="block-title title account-nav-title active">
+        <h3 class="title">Kontonavigation</h3>
+    </div>
+    <div class="content account-nav-content active" id="account-nav">
+        <ul class="nav items">
+            <li class="nav item"><a href="<?php echo $this->getBaseUrl() ?>customer/account/"><?php echo __('Kundenzone'); ?></a></li>
+			<li class="nav item"><a href="<?php echo $this->getBaseUrl() ?>customer/account/edit/"><?php echo __('Konto'); ?></a></li>
+            <li class="nav item"><a href="<?php echo $this->getBaseUrl() ?>sales/order/history/"><?php echo __('Bestellungen'); ?></a></li>
+            <li class="nav item"><a href="<?php echo $this->getBaseUrl() ?>customer/address/"><?php echo __('Adressbuch'); ?></a></li>
+            <li class="nav item"><a href="<?php echo $this->getBaseUrl() ?>newsletter/manage/"><?php echo __('Newsletter'); ?></a></li>
+            <li class="nav item"><a href="<?php echo $this->getBaseUrl() ?>rental/order/history/"><?php echo __('Mietkalender'); ?></a></li>
+            <li class="nav item current"><strong><?php echo __('Mietverlängerung'); ?></strong></li>
+            <li class="nav item"><a href="<?php echo $this->getBaseUrl() ?>stripe/customer/card/"><?php echo __('Kreditkarten'); ?></a></li>
+        </ul>
+    </div>
+</div>

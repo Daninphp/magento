@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <menu>
+        <add dependsOnConfig="form/form/form_enabled" dependsOnModule="Syncitgroup_Sgform" id="Syncitgroup_Sgform::formlog" title="Syncit Form Log" parent="Magento_Reports::report" module="Syncitgroup_Sgform" resource="Syncitgroup_Sgform::formlog" translate="title" sortOrder="900"/>
+        <add id="Syncitgroup_Sgform::formlog_grid" title="Syncit Form Log Grid" parent="Syncitgroup_Sgform::formlog" module="Syncitgroup_Sgform" resource="Syncitgroup_Sgform::pricelog" translate="title" sortOrder="900" action="formlog"/>
+    </menu>
+</config>

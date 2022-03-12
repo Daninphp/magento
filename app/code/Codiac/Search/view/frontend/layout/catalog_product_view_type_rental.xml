@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2019 Magenest. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="product.info.options.wrapper">
+            <block class="Codiac\Search\Block\Related"
+                   name="product.info.related.products"
+                   as="related-products"
+                   before="-"
+                   template="related.phtml"/>
+
+            <block class="Codiac\Search\Block\Delivery"
+                   name="catalog.product.view.extrablock"
+                   as="extra_options"
+                   after="product.attributes.wrapper"
+                   template="delivery.phtml"/>
+
+        </referenceBlock>
+    </body>
+</page>

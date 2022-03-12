@@ -1,0 +1,64 @@
+<?php
+$posList = $this->getCollection();
+?>
+<link rel="stylesheet" type="text/css" media="all" href="<?php echo $block->getViewFileUrl('Magexo_Pos::css/style.css')?>">
+
+<div class="body_pos">
+    <div class="message-reporting"></div>
+    <button id="create" value="pos" class="create" style="display: inline-block"><?php echo __('Create New POS') ?></button>
+    <table>
+        <thead>
+            <tr>
+                <th><?php echo __('POS ID')?></th>
+                <th><?php echo __('POS NAME')?></th>
+                <th><?php echo __('POS ADDRESS')?></th>
+                <th><?php echo __('AVAILABILITY')?></th>
+                <th><?php echo __('UPDATE')?></th>
+                <th><?php echo __('DELETE')?></th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+        <?php foreach ($posList as $list){ ?>
+            <tr>
+                <td><?php echo $list->getPosId() ?></td>
+                <td><?php echo $list->getName() ?></td>
+                <td><?php echo $list->getAddress() ?></td>
+                <td><?php echo ($list->getIsAvailable() == '1') ?  'Available' : 'Not Available'; ?></td>
+                <td><button id="<?php echo $list->getPosId() ?>" value="pos" class="update-pos" style="display: inline-block"><?php echo __('Update') ?></button></td>
+                <td><button id="<?php echo $list->getPosId() ?>" value="delete" class="delete-pos" style="display: inline-block"><?php echo __('Delete') ?></button></td>
+            </tr>
+        <?php } ?>
+        </tbody>
+    </table>
+</div>
+<div class="pos-update-div" style="display: none;padding: 10px; background-color: lightgrey; border: 1px solid black; position: absolute;left: 50%;top: 50%">
+    <form id="pos-update" action="" method="post">
+        <input type="hidden" name="pos_id" id="pos_id"> <br>
+        <span>Name:</span> <input type="text" name="name" id="name"> <br>
+        <span>Address:</span> <input type="text" name="address" id="address"> <br>
+        <select name="availability" id="availability">
+            <option value="0">Not Available</option>
+            <option value="1">Available</option>
+        </select>
+        <input type="hidden" name="type" value="update"> <br>
+        <input style="margin-top: 10px;margin-left: 20%;" id="submit" type="button" name="submit" value="Update POS">
+    </form>
+</div>
+
+<div class="pos-create-div" style="display: none;padding: 10px; background-color: lightgrey; border: 1px solid black; position: absolute;left: 50%;top: 50%">
+    <form id="pos-create" action="" method="post">
+        <span>POS ID:</span><input type="text" name="pos_id" id="create_pos_id"> <br>
+        <span>Name:</span> <input type="text" name="name" id="create_name"> <br>
+        <span>Address:</span> <input type="text" name="address" id="create_address"> <br>
+        <select name="availability" id="availability">
+            <option value="0">Not Available</option>
+            <option value="1">Available</option>
+        </select>
+        <input type="hidden" name="type" value="create"> <br>
+        <input style="margin-top: 10px;margin-left: 20%;" id="submit2" type="button" name="submit2" value="Create POS">
+    </form>
+</div>
+
+<script src="<?php echo $block->getViewFileUrl('Magexo_Pos::js/pos.js')?>"></script>
+
+

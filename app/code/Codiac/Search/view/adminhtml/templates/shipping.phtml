@@ -1,0 +1,216 @@
+<?php
+/** @var $this \Codiac\Search\Block\Adminhtml\Shipping */
+
+$adminUri = $this->helper('Magento\Backend\Helper\Data')->getAreaFrontName();
+$isShippingEnabledForAllContainers = $this->getIsShippingEnabled();
+$shippingHours = $this->getShippingHours();
+
+$isShippingEnabledForAllContainers ? $selectedValueTrue = 'selected' : $selectedValueTrue = '';
+$isShippingEnabledForAllContainers ? $selectedValueFalse = '' : $selectedValueFalse = 'selected';
+
+?>
+<style>
+    .delete-date {
+        background-image: url(<?php echo $block->getBaseUrl() . 'pub/media/trash.png' ?>);
+        background-size: 100%;
+        background-repeat: no-repeat;
+        height: 30px;
+        background-color: #fff;
+        border: none;
+    }
+</style>
+<div id="cancel-all-shipping">
+    <div id="shipping-disable">
+        <h2><?php echo __('Versand für alle Container stornieren:') ?></h2>
+        <select name="cancel-shipping" id="cancel-shipping">
+            <option <?php echo $selectedValueFalse ?>  value="0"><?php echo __('Nein') ?></option>
+            <option <?php echo $selectedValueTrue ?>  value="1"><?php echo __('Ja') ?></option>
+        </select>
+        <button type="button" id="cancel-all-shipping-submit"><?php echo __('Absenden') ?></button>
+        <span id="return-message">
+        <?php if($isShippingEnabledForAllContainers): ?>
+            <span id="shipping-disabled"><?php echo  __('*Der Versand ist derzeit deaktiviert') ?></span>
+        <?php endif; ?>
+        </span>
+    </div>
+    <div id="shipping-hour-container">
+        <h2><?php echo __('Versandzeit aktualisieren:') ?></h2>
+        <label for="shipping-hour"><?php echo __("Aktuelle Stunde: ") ?></label>
+        <input id="shipping-hour" name="shipping-hour" type="text" value="<?php echo $shippingHours ?>" />
+        <button type="button" id="update-shipping-hour"><?php echo __('Aktualisieren') ?></button>
+        <div id="udpated-hour-message"></div>
+    </div>
+</div>
+
+<?php if (false): ?>
+<div id="calendar-exclusion" style="margin-top: 30px;">
+    <h2><?php echo __('Datumsauswahl') ?></h2>
+    <div class="row">
+        <div class="col-sm-8">
+            <div id="showcase-wrapper">
+                <div id="myCalendarWrapper"></div>
+                <div id="exclusion-dates" style="width: 60%">
+                    <h3><?php echo __('Ausschlussdatum : ') ?>
+                        <p id="current-date"></p>
+                    </h3>
+                    <button disabled id="exclude-current-date" type="button"><?php echo __('Datum ausschließen!') ?></button>
+                </div>
+                <div id="select-date-message" style="width: 60%">
+                    <h3><?php echo __('Bitte wählen Sie das Datum für den Versandausschluss!') ?></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <h2><?php echo __('Termine vom Versand ausgeschlossen:') ?></h2>
+            <div id="excluded-days"></div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+<div id="loader-gif">
+    <div class="loader-gif" style="display: none">
+        <img src="<?php echo $block->getBaseUrl() . 'pub/media/loader.gif' ?>" alt="loader">
+    </div>
+</div>
+
+<div id="error-reporting" style="display: none"><div class="error-reporting"></div></div>
+
+<link rel="stylesheet" type="text/css" href="<?php echo $block->getViewFileUrl('Codiac_Search::css/CalendarPicker.style.css')?>">
+<script src="<?php echo $block->getViewFileUrl('Codiac_Search::js/CalendarPicker.js')?>"></script>
+
+<script>
+    require(['jquery', 'jquery/ui','Magento_Ui/js/form/element/date'], function ($) {
+        var gifLoader = jQuery('.loader-gif');
+        var baseAdminUrl = '<?php echo $this->getBaseUrl() . $adminUri ?>';
+        var mysqlFormatedDate = '';
+
+        jQuery('#shipping-hour').timepicker({
+            format: 'hh:ii',
+            // timeFormat: 'hh:mm',
+        });
+
+        jQuery('#cancel-all-shipping-submit, #update-shipping-hour').on('click', function () {
+            gifLoader.show();
+            var sender = jQuery(this).attr('id');
+            var boolValue = jQuery('#cancel-shipping').val();
+            var hourValue = jQuery('#shipping-hour').val();
+            var url = baseAdminUrl + '/codiac/system/save';
+            var url = url.replace("#", "");
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {'value': boolValue, 'hour': hourValue, 'sender': sender},
+                dataType: 'json',
+            }).done(function (answer) {
+                gifLoader.hide();
+                jQuery(answer.messageDiv).html(answer.message);
+            })
+        });
+
+        function getExclusionDates(loaderState) {
+            gifLoader.css('display', loaderState);
+            var url = baseAdminUrl + '/codiac/calendar/read';
+            var url = url.replace("#", "");
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {},
+                dataType: 'json',
+            }).done(function (answer) {
+                gifLoader.hide();
+                if(typeof  answer == "object"){
+                    jQuery('#excluded-days').empty();
+                    answer.forEach(function (single) {
+                        var newDateFormat = single.exclusion_date.split('-');
+                        jQuery('#excluded-days').append('<div class="excluded-date"><b>' + newDateFormat[2] + '-' + newDateFormat[1] + '-' + newDateFormat[0] + '</b><button class="delete-date" title="Löschen" type="button" data-id="' + single.id +'"></button></div>')
+                    });
+
+                    jQuery('.delete-date').on('click', function () {
+                        if (confirm("Möchten Sie dieses Datum wirklich löschen?")){
+                            gifLoader.css('display', 'block');
+                            var url = baseAdminUrl + '/codiac/calendar/delete';
+                            var url = url.replace("#", "");
+                            var id = jQuery(this).attr('data-id');
+                            jQuery.ajax({
+                                url: url,
+                                method: 'post',
+                                data: {'id': id},
+                                dataType: 'json',
+                            }).done(function (answer) {
+                                gifLoader.hide();
+                                jQuery('#error-reporting').show();
+                                jQuery('.error-reporting').append('<h4>' + answer.message + '</h4>');
+                                if(answer.status === 'success') {
+                                    setTimeout(function(){ jQuery('#error-reporting').hide();jQuery('.error-reporting').empty(); getExclusionDates('none'); }, 1500);
+                                } else {
+                                    setTimeout(function(){ jQuery('#error-reporting').hide();jQuery('.error-reporting').empty();}, 1500);
+                                }
+                                getExclusionDates();
+                            })
+                        } else {
+                            event.preventDefault();
+                        }
+                    });
+                }
+                jQuery('#exclude-current-date').prop("disabled", false); // Element(s) are now enabled.
+            });
+        }
+
+        jQuery( document ).ready(function() {
+            getExclusionDates('block');
+        });
+
+        jQuery('#exclude-current-date').on('click', function () {
+            jQuery('#exclude-current-date').prop("disabled", true); // Element(s) are now disabled.
+            gifLoader.show();
+            var url = baseAdminUrl + '/codiac/calendar/add';
+            var url = url.replace("#", "");
+            var date = jQuery('#current-date').text().split('-');
+            var mysqlFormatDate = date[2] + '-' + date[1] + '-' + date[0];
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {'date': mysqlFormatDate},
+                dataType: 'json',
+            }).done(function (answer) {
+                jQuery('.error-reporting').empty();
+                jQuery('#error-reporting').hide();
+                if(answer.message){
+                    gifLoader.hide();
+                    jQuery('#error-reporting').show();
+                    jQuery('.error-reporting').append('<h4>' + answer.message + '</h4>');
+                    if(answer.status === 'success') {
+                        setTimeout(function(){ jQuery('#error-reporting').hide();jQuery('.error-reporting').empty(); }, 1500);
+                        getExclusionDates('none');
+                    } else {
+                        setTimeout(function(){ jQuery('#error-reporting').hide();jQuery('.error-reporting').empty();}, 1500);
+                    }
+                };
+                jQuery('#exclude-current-date').prop("disabled", false); // Element(s) are now enabled.
+            })
+        });
+
+    });
+
+    const nextYear = new Date().getFullYear() + 1;
+    const myCalender = new CalendarPicker('#myCalendarWrapper', {
+        // If max < min or min > max then the only available day will be today.
+        min: new Date(),
+        max: new Date(nextYear, 10) // NOTE: new Date(nextYear, 10) is "Sun Nov 01 <nextYear>"
+    });
+
+    const currentDateElement = document.getElementById('current-date');
+
+    myCalender.onValueChange((currentValue) => {
+        var exclusionDay = currentValue;
+        var dd = String(exclusionDay.getDate()).padStart(2, '0');
+        var mm = String(exclusionDay.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = exclusionDay.getFullYear();
+        currentValue = dd + '-' + mm + '-' + yyyy;
+
+        currentDateElement.textContent = currentValue;
+        document.getElementById('select-date-message').style.display = 'none';
+        document.getElementById('exclusion-dates').style.display = 'block';
+    });
+</script>
+

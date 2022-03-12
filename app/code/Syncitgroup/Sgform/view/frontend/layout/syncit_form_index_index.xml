@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Syncit Group Form</title>
+    </head>
+    <body>
+        <referenceContainer name="content">
+<!--            <block class="Syncitgroup\Sgform\Block\Form" name="syncit-form-block" template="Syncitgroup_Sgform::syncit_form.phtml">-->
+<!--            </block>-->
+            <block class="Syncitgroup\Sgform\Block\Form" name="contactForm" template="Syncitgroup_Sgform::syncit_form.phtml">
+                <container name="form.additional.info" label="Form Additional Info">
+                    <block class="Magento\Captcha\Block\Captcha" name="captcha" after="-" cacheable="false">
+                        <action method="setFormId">
+                            <argument name="formId" xsi:type="string">syncit_form</argument>
+                        </action>
+                        <action method="setImgWidth">
+                            <argument name="width" xsi:type="string">230</argument>
+                        </action>
+                        <action method="setImgHeight">
+                            <argument name="width" xsi:type="string">50</argument>
+                        </action>
+                    </block>
+                </container>
+            </block>
+        </referenceContainer>
+        <referenceBlock name="head.components">
+            <block class="Magento\Framework\View\Element\Js\Components" name="captcha_page_head_components" template="Magento_Captcha::js/components.phtml"/>
+        </referenceBlock>
+    </body>
+</page>

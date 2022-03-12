@@ -1,0 +1,13 @@
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Smartweb\Auto\Block\Search"
+                   name="block.search"
+                   as="block.search"
+                   template="Smartweb_Auto::search.phtml"
+                   before="category.products"
+            />
+        </referenceContainer>
+    </body>
+</page>

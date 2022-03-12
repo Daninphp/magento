@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Magenest\RentalSystem\Model\ResourceModel\RentalOrder\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="bold_order_comment" xsi:type="string">magenest_rental_order.bold_order_comment</item>
+            </argument>
+        </arguments>
+    </virtualType>
+<!--    <preference for="Magenest\RentalSystem\Block\Product\Rental" type="Codiac\Search\Block\Product\Rental"/>-->
+    <preference for="Magento\Framework\Pricing\Render\Amount" type="Codiac\Search\Pricing\Render\Amount"/>
+</config>

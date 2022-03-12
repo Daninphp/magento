@@ -1,0 +1,65 @@
+
+<?php
+/**
+ * Slider view template
+ *
+ * @var $block \Codiac\Search\Block\Slider
+ */
+//echo $block->getBaseUrl();
+?>
+<style>
+    .diagonal-split-background{
+        /*padding-top: 300px;*/
+        text-align: center;
+        width: 100%;
+        background-color: #132839;
+        background-image: -webkit-linear-gradient(80deg, #ffffff 50%, #132839 50%);
+    }
+
+    .slider-himself {
+        top: 0;
+        width: 60%;
+        margin: 0 auto;
+    }
+
+    .slider-left, .slider-right {
+        width: 20%;
+    }
+
+    .slider-center {
+        width: 60%;
+        margin: 0 auto;
+    }
+
+    .slider-other-images {
+        display: none;
+    }
+
+    .slider-side-img {
+        position: absolute;
+        /*margin-right: -2000px;*/
+        right: -1000px;
+
+    }
+
+    .on-top-slider {
+        background-color: #132839;
+        width: 100%;
+        height: 300px;
+    }
+
+    .inside-diagonal {
+        /*background-image: url("<?php echo $block->getBaseUrl() . 'pub/media/Slider/prajophone.png'; ?>");*/
+    }
+
+</style>
+<div class="diagonal-split-background">
+<!--    --><?php //echo $block->getLayout()->createBlock('Nwdthemes\Revslider\Block\Revslider')->setAlias('showcase-carousel')->toHtml(); ?>
+    <div class="slider-himself">
+        <div class="slider-left"></div>
+        <div class="slider-center">
+            <img src="<?php echo $block->getBaseUrl() . 'pub/media/Slider/prajophone.png'; ?>">
+        </div>
+        <div class="slider-right"></div>
+    </div>
+</div>

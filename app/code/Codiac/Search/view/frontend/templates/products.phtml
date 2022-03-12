@@ -1,0 +1,27 @@
+<?php
+
+/** @var $block \Codiac\Search\Block\Products */
+
+$products = $block->getProductCollection();
+$mediaUrl = $block->getMediaUrl('media') . 'catalog/product';
+$rootUrl = $block->getMediaUrl();
+?>
+<?php if (!empty($products)): ?>
+<div class="sizes">
+    <h3><?php echo __('Größe') ?></h3>
+    <div>
+        <?php
+        foreach ($products as $product) { ?>
+            <?php $label = $product->getResource()->getAttribute('size')->getFrontend()->getValue($product); ?>
+            <?php $type = $product->getResource()->getAttribute('type')->getFrontend()->getValue($product); ?>
+            <a href="<?php echo $rootUrl . $product->getUrlKey() . '.html'; ?>" >
+                <div class="related-sizes <?php $this->view->getProduct()->getId() == $product->getId() ? $class = 'enabled-s' : $class = 'disabled-s'; echo $class; ?>">
+<!--                    <div class="product-size" title="--><?php //echo $type; ?><!--">--><?php //echo $this->getSizeLabel($label); ?><!--</div>-->
+                    <div class="product-size" title="<?php echo $type; ?>"><?php echo $label; ?></div>
+                    <br>
+                </div>
+            </a>
+        <?php } ?>
+    </div>
+</div>
+<?php endif; ?>

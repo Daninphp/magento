@@ -1,0 +1,78 @@
+
+<?php
+/**
+ * Slider view template
+ *
+ * @var $block \Codiac\Search\Block\Slider
+ */
+?>
+<div class="tab-wrapper">
+    <nav id="tabs">
+        <a href="#search-container-base" class="nav-tab first-element">
+            <i aria-hidden="true" class="fa fa-wrench"></i>
+            <span>Online Konfigurator</span>
+        </a>
+        <a href="#tab-2" class="nav-tab">
+            <i class="fa fa-apple"></i>
+            <span>App Store</span>
+        </a>
+        <a href="#tab-3" class="nav-tab">
+            <i aria-hidden="true" class="fa fa-google-plus"></i>
+            <span>Google Play</span>
+        </a>
+    </nav>
+
+<!--    <section id="tab-1" class="tab-content active">-->
+<!--        <P>Some content here.</P>-->
+<!--    </section>-->
+<!--    <section id="tab-2" class="tab-content">-->
+<!--        <p>Some more here.</p>-->
+<!--    </section>-->
+<!--    <section id="tab-3" class="tab-content">-->
+<!--        <p>Something else here.</p>-->
+<!--    </section>-->
+</div>
+
+<script>
+    require(['jquery', 'jquery/ui'], function ($) {
+        $('#tabs a').click(function(e){e.preventDefault();});
+        $.fn.tabs = function () {
+            // for each tab wrapper ...
+            return this.each(function () {
+                // capture wrapper context
+                var wrapper = this;
+                // use single click event per wrapper, delegate  only to inactive tabs
+                $(wrapper).on('click', '.nav-tab:not(.active)', function (event) {
+                    var existingElement = jQuery('.response-details').length;
+                    jQuery("#tabs > a.nav-tab.first-element").removeClass('first-element');
+
+                    // remove all active
+                    $('.active', wrapper).removeClass('active');
+                    // get the clicked tab
+                    var clicked = $(event.target);
+                    // add the active class
+                    clicked.addClass('active');
+                    $(clicked).removeClass('first-element');
+                    // find the tab's content and add the active class
+                    $(clicked.attr('href'), wrapper).addClass('active');
+                    if (jQuery(clicked).attr('href') === '#search-container-base' && existingElement > 0) {
+                        jQuery(clicked).removeClass('active');
+                        jQuery(clicked).addClass('first-element');
+                        jQuery('html,body').animate({
+                                scrollTop: jQuery("#search-results").offset().top - jQuery(".middle-header-content").height()},
+                            'slow');
+                    } else if (jQuery(clicked).attr('href') === '#tab-2') {
+                        console.log('element 2');
+                    } else if (jQuery(clicked).attr('href') === '#tab-3') {
+                        console.log('element 3');
+                    }
+                })
+            })
+        };
+
+        // keep on-ready function nice and clean!
+        (function ($) {
+            $('.tab-wrapper').tabs()
+        })(jQuery)
+    });
+</script>

@@ -1,0 +1,9 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magexo_Pos::mastering" title="Mastering" translate="title" sortOrder="900"/>
+            </resource>
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="codiac" translate="label" sortOrder="1">
+            <label>Containers Shipping Notification</label>
+        </tab>
+        <section id="shipping_system" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>Shipping Notification</label>
+            <tab>codiac</tab>
+            <resource>Codiac_Search::core_config</resource>
+            <group id="shipping_general" translate="general" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Disable Shipping for all containers</label>
+                <field id="shipping_value" translate="label" type="select" showInDefault="1" canRestore="1" sortOrder="100">
+                    <label>Disable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Disable shipping for all containers]]></comment>
+                </field>
+            </group>
+            <group id="shipping_hours" translate="general" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Last hour for shipping availability</label>
+                <field id="shipping_time" translate="label" type="text" showInDefault="1" canRestore="1" sortOrder="110">
+                    <label>Last hour</label>
+                    <comment><![CDATA[Next day shipping, format: "14:00"]]></comment>
+                </field>
+            </group>
+        </section>
+        <tab id="codiac_email" translate="label" sortOrder="10">
+            <label>Benachrichtigung über ablaufende Bestellung</label>
+        </tab>
+        <section id="email_notification_root" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>Email</label>
+            <tab>codiac_email</tab>
+            <resource>Codiac_Search::core_config</resource>
+            <group id="email_notification_general" translate="general" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Tage vor Ablauf der Bestellung</label>
+                <field id="shipping_time" translate="label" type="text" showInDefault="1" canRestore="1" sortOrder="110">
+                    <label>Days</label>
+                </field>
+            </group>
+            <group id="email_notification_general_text" translate="general" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Fusszeile</label>
+                <field id="email_footer" translate="label" type="textarea" showInDefault="1" canRestore="1" sortOrder="110">
+                    <label>Text anzeigen</label>
+                </field>
+            </group>
+        </section>
+        <section id="email_invoice_notification_root" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>Rechnungs-E-Mail</label>
+            <tab>codiac_email</tab>
+            <resource>Codiac_Search::core_config</resource>
+            <group id="email_invoice_notification_general" translate="general" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Rechnungs-E-Mail senden</label>
+                <field id="email_invoice_notification_value" translate="label" type="select" showInDefault="1" canRestore="1" sortOrder="100">
+                    <label>Enable/Disable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Wenn diese Option aktiviert ist, wird nach der Bestellung automatisch eine Rechnungsmail gesendet.]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,0 +1,452 @@
+<?php
+/** @var $this Codiac\Search\Block\Adminhtml\Customer */
+
+$customers = $this->getCustomers();
+$categoriesCollection = $this->getCategories();
+$productCollection = $this->getProductCollection();
+$adminUri = $this->helper('Magento\Backend\Helper\Data')->getAreaFrontName();
+
+?>
+
+<style>
+    select {
+        display: block;
+        margin-bottom: 20px;
+        width: 300px;
+        padding: 8px;
+    }
+
+    #table-response > tr td  {
+        padding-top: 10px
+    }
+
+
+    #notification-query {
+        padding: 20px 0 0 20px;
+        width: 40%
+    }
+
+    #notification-query, #notification-list {
+        float: left;
+    }
+
+    #body-notification:after, #notification-list:after {
+        display: table;
+        content: '';
+        clear: both;
+    }
+
+    #products-list {
+        padding: 5px;
+        width: 500px;
+        font-size: 19px;
+    }
+
+    #notification-comment-area {
+        font-size: 19px;
+        width: 500px;
+        padding: 5px;
+    }
+
+    #notification-comment-area:focus {
+        box-shadow: 0 6px 16px -6px rgb(24 52 75 / 56%);
+    }
+
+    #products, #notification-days {
+        margin-bottom: 30px;
+    }
+
+    #notification-days h2 {
+        max-width: 475px;
+    }
+
+    #notification-days-select {
+        border: none;
+        width: 500px;
+        height: 235px;
+    }
+
+    #notification-days-select option {
+        margin: 0 10px 10px 0;
+        font-size: 19px;
+        padding: 8px;
+        border: 1px solid;
+    }
+
+    .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    .tg td {
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        overflow: hidden;
+        padding: 10px 5px;
+        word-break: normal;
+    }
+
+    .tg th {
+        border-color: black;
+        border-style: solid;
+        border-width: 1px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        overflow: hidden;
+        padding: 10px 5px;
+        word-break: normal;
+    }
+
+    .tg .tg-amwm {
+        text-align: center;
+        vertical-align: top
+    }
+
+    .tg .tg-0lax {
+        text-align: center;
+        vertical-align: top
+    }
+
+    #table-response tr:nth-child(even) {
+        background-color: #f5f5f5;
+    }
+
+    #table-response tr:hover {
+        background-color: #e5f7fe;
+    }
+
+    #table-response {
+        border: 1px solid #d6d6d6;
+    }
+
+    #table-info thead tr {
+        background-color: #5f564f;
+        color: white;
+    }
+
+    #table-response .excluded-date {
+        border-left: 1px solid;
+        border-right: 1px solid;
+    }
+
+    #table-response td {
+        border-bottom: none;
+        border-left: 0.1rem dashed #d6d6d6;
+        border-right: 0.1rem dashed #d6d6d6;
+        border-top: 0.1rem dashed #d6d6d6;
+        color: #303030;
+        padding: 1rem 1rem;
+    }
+
+    #submit-notification {
+        margin: 20px 0;
+        background-color: #5f564f;
+        color: white;
+    }
+
+    #submit-notification:hover {
+        color: #d6d6d6
+    }
+
+    #table-info h2 {
+        text-align: center;
+        font-size: 25px;
+        font-weight: bold;
+    }
+
+    #loader-gif, #error-reporting {
+        position: relative;
+    }
+
+    .loader-gif, .error-reporting {
+        width: 350px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        /* bring your own prefixes */
+        transform: translate(-50%, -50%)
+    }
+
+    #error-reporting .error-reporting {
+        width: 420px;
+        background-color: #fafafa;
+        border: 1px solid;
+        padding: 10px;
+    }
+
+    .loader-gif img, .error-reporting {
+        width: 100%;
+    }
+
+    .delete-notification {
+        width: 50%;
+    }
+
+    .delete-notification:hover {
+        background-color: #5f564f;
+        color: white;
+        font-weight: bold;
+    }
+
+    #total-delivery-times {
+        display: none;
+        overflow: auto !important;
+        width: 150px;
+        text-align: center;
+    }
+
+    #delivery-times select {
+        width: 25%;
+    }
+
+    #delivery-times #total-delivery-times {
+        width: 51%;
+    }
+
+    #total-delivery-times option {
+        cursor: pointer;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    #total-delivery-times option:hover {
+        display: block;
+        color: red;
+    }
+
+    #price-request {
+        /*width: 30%;*/
+        padding-top: 30px;
+    }
+
+    #price-answer {
+        /*width: 70%;*/
+    }
+
+</style>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->getViewFileUrl('Codiac_Search::css/CalendarPicker.style.css')?>">
+
+<div id="price-request">
+    <label for="product_collection"><?php echo __("Produkt") ?></label>
+    <select name="products" id="product_collection">
+        <?php foreach ($productCollection as $product) { ?>
+            <option data-source-price="<?php echo $product->getPrice() ?>" value="<?php echo $product->getId(); ?>"><?php echo $product->getName(); ?></option>
+        <?php } ?>
+    </select>
+
+    <select name="category_collection" id="category_collection">
+        <?php foreach ($categoriesCollection as $category) { ?>
+            <option  value="<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></option>
+        <?php } ?>
+    </select>
+
+    <label for="customers"><?php echo __("der Kunde") ?></label>
+    <select name="customers" id="customers">
+        <?php foreach ($customers as $customer) { ?>
+            <option value="<?php echo $customer->getId(); ?>"><?php echo $customer->getFirstname() . ' ' . $customer->getLastname(); ?></option>
+        <?php } ?>
+    </select>
+
+    <div class="preis">
+        <label style="width: 50%" for="discount_amount"><?php echo __("Rabattbetrag") . '(%): ' ?></label>
+        <input style="width: 48%" min="0" max="99" type="number" name="discount_amount" id="discount_amount" />
+    </div>
+
+    <button id="sumbit_discount" type="button">Submit</button>
+</div>
+
+<div id="price-answer">
+    <div id="table-info" style="">
+        <h2><?php echo __("Per Kg. Prices") ?></h2>
+        <table class="tg" style="undefined;table-layout: fixed; width: 799px">
+            <colgroup>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+            </colgroup>
+            <thead>
+            <tr>
+                <th class="tg-amwm"><?php echo __('Produkt') ?></th>
+                <th class="tg-amwm"><?php echo __('der Kunde') ?></th>
+                <th class="tg-amwm"><?php echo __('Kategorie') ?></th>
+                <th class="tg-amwm"><?php echo __('Rabattbetrag') ?></th>
+                <th class="tg-amwm"><?php echo __('Discount Price') ?></th>
+                <th class="tg-amwm"><?php echo __('Original Price') ?></th>
+                <th class="tg-amwm"><?php echo __('Aktualisieren') ?></th>
+                <th class="tg-amwm"><?php echo __('Löschen') ?></th>
+            </tr>
+            </thead>
+            <tbody id="table-response">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="<?php echo $this->getViewFileUrl('Codiac_Search::js/paginator.js')?>"></script>
+<script>
+    require(['jquery', 'jquery/ui'], function($){
+        (function () {
+
+            let baseAdminUrl = '<?php echo $this->getBaseUrl() . $adminUri ?>';
+
+            jQuery('#sumbit_discount').click(function() {
+                var url = baseAdminUrl + '/codiac/customerprices/add';
+                var originalPrice = jQuery('#product_collection option:selected').attr('data-source-price')
+                var discountPrice = (originalPrice - (originalPrice * jQuery('#discount_amount').val() / 100)).toFixed(2);
+                var data = {
+                    'product_id': jQuery('#product_collection').val(),
+                    'product_name': jQuery('#product_collection option:selected').text(),
+                    'category_id': jQuery('#category_collection').val(),
+                    'category_name': jQuery('#category_collection option:selected').text(),
+                    'customer_id': jQuery('#customers').val(),
+                    'customer_name_lastname': jQuery('#customers option:selected').text(),
+                    'discount': parseFloat(jQuery('#discount_amount').val()),
+                    'form_key': window.FORM_KEY
+                };
+                console.log(data)
+                if (confirm("Are you sure you want to this?")){
+                    jQuery.ajax({
+                        url:  url,
+                        method: 'post',
+                        data: data,
+                        dataType: 'json',
+                    }).done(function (answer) {
+                        alert(answer.message);
+                        getPricesList();
+                    })
+                } else {
+                    event.preventDefault();
+                }
+            });
+        })();
+
+
+        function getPricesList() {
+            var url = '<?php echo $this->getBaseUrl() . $adminUri ?>' + '/codiac/customerprices/read';
+            var url = url.replace("#", "");
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {'form_key': window.FORM_KEY},
+                dataType: 'json',
+            }).done(function (answer) {
+                if (typeof answer == "object") {
+                    jQuery('#table-response').empty();
+                    answer.forEach(function (single, index, arr) {
+                        var currentElement = single.product_name;
+                        var previusElement = ((0 === index)? "" : arr[index-1].product_name);
+                        let style = '';
+                        currentElement != previusElement ? style = 'style="border-top: 2px solid"' : '';
+
+                        jQuery('#table-response').append('' +
+                            '<tr class="prices" ' + style + '>' +
+                                '<td class="tg-0lax">' + single.product_name + '</td>' +
+                                '<td class="tg-0lax customer_info" data-id="' + single.customer_id + '">' + single.customer_name_lastname + '</td>' +
+                                '<td class="tg-0lax category_info" data-id="' + single.category_id + '">' + single.category_name + '</td>' +
+                                '<td class="tg-0lax"><input class="discount_price" style="width: 70px" type="number" min="0" max="99" value="' + single.discount + '"/></td>' +
+                                '<td class="tg-0lax">' + single.price_after_discount + '</td>' +
+                                '<td class="tg-0lax original_price">' + single.original_price + '</td>' +
+                                '<td class="tg-0lax"><button class="update-price" title="Update" type="button" data-id="' + single.id + '">o</button></td>' +
+                                '<td class="tg-0lax"><button class="delete-price" title="Delete" type="button" data-id="' + single.id + '">x</button></td>' +
+                            '</tr>')
+                    });
+
+                    paginator({
+                        rows_per_page: 10,
+                        table: document.getElementById("table-info").getElementsByTagName("table")[0],
+                        box: document.getElementById("index_native"),
+                        active_class: "color_page",
+                    });
+
+                    jQuery('#table-info').show();
+                    jQuery('.delete-price').on('click', function () {
+                        jQuery('.delete-price').prop("disabled", true); // Element(s) are now disabled.
+                        if (confirm("Are you sure you want to delete this price?")) {
+                            var url = '<?php echo $this->getBaseUrl() . $adminUri ?>' + '/codiac/customerprices/delete';
+                            var url = url.replace("#", "");
+                            var id = jQuery(this).attr('data-id');
+                            jQuery.ajax({
+                                url: url,
+                                method: 'post',
+                                data: {'form_key': window.FORM_KEY, 'id': id},
+                                dataType: 'json',
+                            }).done(function (answer) {
+                                if (answer.status === true) {
+                                    alert(answer.message);
+                                    setTimeout(function () {
+                                        getPricesList();
+                                    }, 1500);
+                                } else {
+                                    alert(answer.message);
+                                    setTimeout(function () {
+                                    }, 1500);
+                                }
+                                jQuery('.delete-price').prop("disabled", false); // Element(s) are now enabled.
+                                getPricesList();
+                            })
+                        } else {
+                            jQuery('.delete-price').prop("disabled", false); // Element(s) are now enabled.
+                            event.preventDefault();
+                        }
+                    });
+
+                    jQuery('.update-price').on('click', function () {
+                        jQuery('.update-price').prop("disabled", true); // Element(s) are now disabled.
+                        if (confirm("Are you sure you want to save changes?")) {
+                            var url = '<?php echo $this->getBaseUrl() . $adminUri ?>' + '/codiac/customerprices/update';
+                            var url = url.replace("#", "");
+                            var originalPrice = parseFloat(jQuery(this).parent().parent().children('.original_price').text());
+                            var discountAmmount = parseFloat(jQuery(this).parent().parent().children('.tg-0lax').children('.discount_price').val());
+                            var priceAfterDiscount = originalPrice - (originalPrice * discountAmmount / 100);
+                            var data = {
+                                'form_key': window.FORM_KEY,
+                                'id': jQuery(this).attr('data-id'),
+                                'discount': discountAmmount,
+                                'category_id': parseFloat(jQuery(this).parent().parent().children('.category_info').attr('data-id')),
+                                'customer_id': parseFloat(jQuery(this).parent().parent().children('.customer_info').attr('data-id')),
+                                'price_after_discount': priceAfterDiscount,
+                            };
+                            jQuery.ajax({
+                                url: url,
+                                method: 'post',
+                                data: data,
+                                dataType: 'json',
+                            }).done(function (answer) {
+                                if (answer.status === true) {
+                                    alert(answer.message);
+                                    setTimeout(function () {
+                                        getPricesList();
+                                    }, 1500);
+                                } else {
+                                    alert(answer.message);
+                                    setTimeout(function () {
+                                    }, 1500);
+                                }
+                                jQuery('.update-price').prop("disabled", false); // Element(s) are now enabled.
+                                getPricesList();
+                            })
+                        } else {
+                            jQuery('.update-price').prop("disabled", false); // Element(s) are now enabled.
+                            event.preventDefault();
+                        }
+                    });
+                }
+            });
+        }
+
+        jQuery(document).ready(function () {
+            getPricesList();
+        });
+
+    });
+</script>

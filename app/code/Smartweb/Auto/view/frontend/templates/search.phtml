@@ -1,0 +1,37 @@
+<?php
+/** @var $this \Smartweb\Auto\Block\Search */
+$carMarks = $this->getCarMarks();
+?>
+<div class="search-container" id="search-container-base">
+    <div class="search-content">
+        <div class="mark">
+            <select name="car-mark" id="car-mark">
+                <?php
+                if (!empty($carMarks)) {
+                    foreach ($carMarks as $mark) { ?>
+                      <option value="<?php echo $mark['id'] ?>"><?php echo $mark['label'] ?></option>
+                <?php }
+                }
+                ?>
+            </select>
+        </div>
+        <div class="model">
+            <select name="model-mark" id="model-mark" disabled></select>
+        </div>
+        <div class="car-type">
+            <select name="car-type" id="car-type" disabled></select>
+        </div>
+        <div class="bulb-type">
+            <select name="bulb-type" id="bulb-type" disabled></select>
+        </div>
+        <div class="find">
+            <button id="find" type="button">Pretrazi</button></div>
+    </div>
+</div>
+<script>
+    require(['jquery', 'jquery/ui'], function ($) {
+        window.baseUrl = '<?php echo $this->getBaseUrl() . 'search/search/index'; ?>';
+    });
+</script>
+<script src="<?php echo $this->getViewFileUrl('Smartweb_Auto::js/search.js')?>"></script>
+

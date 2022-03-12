@@ -1,0 +1,77 @@
+<?php
+
+/** @var $block \Codiac\Search\Block\Filters */
+$postalCode = ucwords($this->getSearchString());
+$wasteType = $this->getCategoryName();
+$wasteId = $this->getCategoryId();
+$containerSize = $this->getProductSize();
+$containerSizeId = $this->getSizeAttributeId();
+$searchQuery = $this->getSessionQuery();
+$pencilImgUrl = $this->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'pub/media/pencil.png';
+?>
+
+<?php if ($postalCode && $wasteType) { ?>
+<div id="search-history">
+    <h3>Ausgewählte Konfiguration</h3>
+    <div class="search-postal-code"><span><i class="fa fa-map-marker" aria-hidden="true"></i><?php echo $postalCode ?></span><button style="background-image: url(<?php echo $pencilImgUrl?>)" disabled id="edit-postal-code"></button></div>
+    <div class="search-waste-type"><span data-id="<?php echo $wasteId ?>"><i class="fa fa-industry" aria-hidden="true"></i><?php echo $wasteType ?></span><button style="background-image: url(<?php echo $pencilImgUrl?>)" disabled id="edit-waste-type"></button></div>
+<!--    <div class="search-container-size"><span data-id="--><?php //echo $containerSizeId ?><!--">--><?php //echo $containerSize ?><!--</span><button disabled id="edit-container-type"></button></div>-->
+    <div class="container-type-id" style="display: none" data-id="<?php echo $this->getProductTypeId() ?>"></div>
+</div>
+<script>
+    require(['jquery', 'jquery/ui'], function ($) {
+
+        var rootUrl = '<?php echo $this->getBaseUrl() ?>';
+        var dataSource = <?php echo json_encode($searchQuery) ?>;
+        var postalCode = '<?php echo $postalCode ?>';
+        var wasteId = '<?php echo $wasteId ?>';
+
+        jQuery('#edit-postal-code, .search-postal-code').on('click', function () {
+            searchQuery = rootUrl + '?' + 'postCode=' + postalCode;
+            window.location = searchQuery;
+        });
+
+        jQuery('#edit-waste-type, .search-waste-type').on('click', function () {
+            searchQuery = rootUrl + '?' + 'postCode=' + postalCode + '&' + "wasteId=" + wasteId;
+            window.location = searchQuery;
+        });
+
+
+        function callSearchString() {
+            var url = rootUrl + 'search/search/index';
+            var searchString = '<?php echo $postalCode ?>';
+            jQuery('#clientpostcode').val(searchString);
+            jQuery('#search-location').val(searchString);
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {'searchString': searchString},
+            }).done(function (answer) {
+                jQuery('#search-results').html(answer);
+                jQuery('#container-types').css('display','block');
+
+                getContainers();
+            })
+        }
+
+        function getContainers() {
+            var url = rootUrl + 'search/search/container';
+            jQuery.ajax({
+                url: url,
+                method: 'post',
+                data: {'categoryId': dataSource.categoryId},
+            }).done(function (answerContainer) {
+                jQuery('.loader-gif').css('display','none');
+                jQuery(".container-types-answer").html(answerContainer);
+                jQuery('.container-type').attr('data-source', dataSource.dataSource);
+
+                jQuery('#edit-postal-code, #edit-waste-type, #edit-container-type').css("background-color", 'none !important'); // Element(s) are now enabled.
+                jQuery('#edit-postal-code, #edit-waste-type, #edit-container-type').prop("disabled", false); // Element(s) are now enabled.
+            })
+        }
+
+        callSearchString();
+
+    })
+</script>
+<?php } ?>

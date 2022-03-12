@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="pricelog" translate="label" sortOrder="100">
+            <label>Pricelog configuration</label>
+        </tab>
+        <section id="pricelog_data" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1"
+                 showInStore="1">
+            <class>separator-top</class>
+            <label>Settings</label>
+            <tab>pricelog</tab>
+            <resource>Epay_Pricelog::core_config</resource>
+            <group id="pricelog_enable_settings" translate="general" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Enable/Disable Pricelog?</label>
+                <field id="pricelog_enable_bool" translate="label" type="select" showInDefault="1" canRestore="1" sortOrder="100">
+                    <label>Active</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[This will enable or disable product price change logging.]]></comment>
+                </field>
+                <field id="pricelog_enable_grid" translate="label" type="select" showInDefault="1" canRestore="1" sortOrder="100">
+                    <label>Enable grid log?</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[If enabled all price changes will be displayed in "Reports" --> "Price Changes Log" grid.]]></comment>
+                    <depends>
+                        <field id="pricelog_enable_bool">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="pricelog_enable_email" translate="general" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Notify via email?</label>
+                <field id="pricelog_email_bool" translate="label" type="select" showInDefault="1" canRestore="1" sortOrder="100">
+                    <label>Notify?</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[If enabled, email will be sent when product price changes.]]></comment>
+                </field>
+                <field id="pricelog_enabled_email_recipient" translate="label" type="text" showInDefault="1" canRestore="1" sortOrder="100">
+                    <label>Email recipients</label>
+                    <comment><![CDATA[Separate email recipients with ";"]]></comment>
+                    <depends>
+                        <field id="pricelog_email_bool">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

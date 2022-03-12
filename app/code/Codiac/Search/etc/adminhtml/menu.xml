@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Codiac_Search::greetings" title="Lieferausschlusszeiten " translate="title" module="Codiac_Search" parent="Magento_Backend::stores" sortOrder="80" dependsOnModule="Codiac_Search" resource="Codiac_Search::greetings"/>
+        <add id="Codiac_Search::greetings_shipping" title="Lieferkalender" translate="title" module="Codiac_Search" parent="Codiac_Search::greetings" sortOrder="10" dependsOnModule="Codiac_Search" action="codiac/shipping" resource="Codiac_Search::greetings"/>
+        <add id="Codiac_Search::greetings_notification" title="Containerbenachrichtigung" translate="title" module="Codiac_Search" parent="Codiac_Search::greetings" sortOrder="10" dependsOnModule="Codiac_Search" action="codiac/container" resource="Codiac_Search::greetings"/>
+        <add id="Codiac_Search::greetings_price" title="Produkt Kundenpreise" translate="title" module="Codiac_Search" parent="Codiac_Search::greetings" sortOrder="10" dependsOnModule="Codiac_Search" action="codiac/update" resource="Codiac_Search::greetings"/>
+        <add id="Codiac_Search::greetings_customer_price" title="Kundenpreis" translate="title" module="Codiac_Search" parent="Codiac_Search::greetings" sortOrder="10" dependsOnModule="Codiac_Search" action="codiac/customer" resource="Codiac_Search::greetings"/>
+    </menu>
+</config>

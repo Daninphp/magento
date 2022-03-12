@@ -1,0 +1,54 @@
+version: '3.0'
+services:
+
+  php:
+    build:
+        context: .
+        dockerfile: docker/php.dockerfile
+    container_name: php
+    volumes:
+        - ./:/var/www/html:delegated
+        - ./docker/etc/php/php.ini:/opt/homebrew/etc/php/7.3/php.ini
+#         - ./docker/etc/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+  web:
+    image: alexcheng/magento2
+    ports:
+      - "80:80"
+    links:
+      - db
+    env_file:
+      - env
+    volumes:
+      - app-data:/var/www/html
+      - ./src/app/code/Ecard:/var/www/html/app/code/Ecard
+  db:
+    image: mysql:5.6.23
+    volumes:
+      - db-data:/var/lib/mysql/data
+    env_file:
+      - env
+  mysql:
+    image: mysql:5.6.23
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: mysql
+    restart: always
+    ports:
+        - "3307:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: root
+    volumes:
+        - ./docker/volumes/mysql/:/var/lib/mysql
+#        - ./docker/volumes/mysql/rewe:/docker-entrypoint-initdb.d/:ro
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8580:80"
+    links:
+      - db
+    environment:
+        - PMA_ARBITRARY=1
+volumes:
+  db-data:
+  app-data:

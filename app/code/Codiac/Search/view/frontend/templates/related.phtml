@@ -1,0 +1,22 @@
+<?php
+
+/** @var $block \Codiac\Search\Block\Related */
+//$relatedProducts = $block->getRelatedProducts();
+$productTypes = $block->getProductTypes();
+?>
+<?php if (!empty($productTypes)) : ?>
+    <div id="related-products" class="row">
+        <?php if (count($productTypes) > 1) : ?>
+        <h3>Ausführung</h3>
+        <?php foreach ($productTypes as $productType) { ?>
+            <a href="<?php echo $productType['url'] ?>" <?php if($this->view->getProduct()->getId() == $productType['id']) echo 'class="disabled"'; ?>>
+            <div class="col-sm-3">
+                <div class="related-product-container" style="background-image: url(<?php echo $productType['img'] ?>); <?php if ($this->view->getProduct()->getId() == $productType['id']) { echo 'opacity:1'; } else { echo  'opacity:0.25'; } ?>">
+                    <span class="related-name"><?php echo $productType['type'] ?></span>
+                </div>
+            </div>
+            </a>
+        <?php } ?>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2019 Magenest. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <pricelog_data>
+            <pricelog_enable_settings>
+                <pricelog_enable_bool>1</pricelog_enable_bool>
+                <pricelog_enable_grid>1</pricelog_enable_grid>
+            </pricelog_enable_settings>
+            <pricelog_enable_email>
+                <pricelog_email_bool>0</pricelog_email_bool>
+            </pricelog_enable_email>
+        </pricelog_data>
+    </default>
+</config>
