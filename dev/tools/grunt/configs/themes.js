@@ -50,5 +50,15 @@ module.exports = {
             'css/styles'
         ],
         dsl: 'less'
-    }
+    },
+    magemasterycustom: {
+        area: 'frontend',
+        name: 'MageMastery/custom',
+        locale: 'en_US',
+        files: [
+            'css/styles-old',
+            'css/styles'
+        ],
+        dsl: 'less'
+    },
 };

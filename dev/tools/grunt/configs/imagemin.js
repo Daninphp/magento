@@ -5,7 +5,7 @@
 
 'use strict';
 
-var svgo = require('imagemin-svgo');
+var svgo = import('imagemin-svgo');
 
 /**
  * Images optimization.
